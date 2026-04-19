@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parium — Rekrytering som matchar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:   #091624;
+  --navy2:  #0d1f33;
+  --blue:   #4AAEE8;
+  --blue2:  #2274C8;
+  --text:   #FFFFFF;
+  --muted:  rgba(255,255,255,0.55);
+  --line:   rgba(255,255,255,0.07);
+  --glow:   rgba(74,174,232,0.15);
+  --fd: 'Syne', sans-serif;
+  --fb: 'DM Sans', sans-serif;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { font-size: 16px; }
+
+body {
+  background: var(--navy);
+  color: var(--text);
+  font-family: var(--fb);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* LOADER */
+#loader {
+  position: fixed; inset: 0;
+  background: var(--navy);
+  z-index: 1000;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1.75rem;
+}
+.loader-wordmark {
+  font-family: var(--fd);
+  font-size: 1.4rem; font-weight: 700;
+  letter-spacing: -0.02em;
+  color: rgba(255,255,255,0.3);
+}
+.loader-track {
+  width: 180px; height: 1px;
+  background: rgba(255,255,255,0.08);
+  position: relative; overflow: hidden;
+}
+.loader-bar {
+  position: absolute; top: 0; left: 0;
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--blue2), var(--blue));
+}
+.loader-pct {
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+
+/* CURSOR */
+#cdot {
+  width: 6px; height: 6px;
+  background: var(--blue);
+  border-radius: 50%;
+  position: fixed; top:0; left:0;
+  pointer-events: none; z-index: 900;
+  transform: translate(-50%,-50%);
+}
+#cring {
+  width: 26px; height: 26px;
+  border: 1px solid rgba(74,174,232,0.45);
+  border-radius: 50%;
+  position: fixed; top:0; left:0;
+  pointer-events: none; z-index: 900;
+  transform: translate(-50%,-50%);
+}
+
+/* CANVAS */
+#c3d {
+  position: fixed; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* NOISE */
+.noise {
+  position: fixed; inset: 0; z-index: 50;
+  pointer-events: none; opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* HEADER */
+header {
+  position: fixed; top:0; left:0; right:0; z-index: 100;
+  padding: 1.75rem 3.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(180deg, rgba(9,22,36,0.9) 0%, transparent 100%);
+  backdrop-filter: blur(6px);
+}
+.logo { display: flex; align-items: center; gap: 0.65rem; text-decoration: none; }
+.logo-rings { width: 30px; height: 20px; position: relative; }
+.logo-rings::before, .logo-rings::after {
+  content: ''; position: absolute;
+  width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid;
+}
+.logo-rings::before { left:0; top:1px; border-color: var(--blue2); }
+.logo-rings::after  { right:0; top:1px; border-color: var(--blue); }
+.logo-name {
+  font-family: var(--fd); font-size: 1.2rem; font-weight: 700;
+  letter-spacing: -0.02em; color: var(--text);
+}
+nav { display: flex; align-items: center; gap: 2.5rem; }
+nav a {
+  font-size: 0.83rem; color: var(--muted); text-decoration: none;
+  transition: color 0.2s;
+}
+nav a:hover { color: var(--text); }
+.nav-cta {
+  color: var(--text) !important;
+  background: var(--blue);
+  padding: 0.5rem 1.4rem; border-radius: 100px;
+  font-weight: 500;
+  box-shadow: 0 0 20px rgba(74,174,232,0.25);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s !important;
+}
+.nav-cta:hover {
+  background: #5DC4FF !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 28px rgba(74,174,232,0.45) !important;
+}
+
+/* CONTENT */
+#content { position: relative; z-index: 10; }
+
+/* HERO */
+#hero {
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 9rem 3.5rem 6rem;
+  position: relative;
+}
+.hero-inner { max-width: 580px; }
+.hero-label {
+  display: block;
+  font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--blue); margin-bottom: 1.5rem;
+  opacity: 0; transform: translateY(16px);
+}
+h1 {
+  font-family: var(--fd);
+  font-size: clamp(4.5rem, 9vw, 9rem);
+  font-weight: 800; line-height: 0.92; letter-spacing: -0.04em;
+  margin-bottom: 1.75rem;
+  opacity: 0; transform: translateY(40px);
+}
+h1 .gr {
+  display: block;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-sub {
+  font-size: 1.05rem; font-weight: 300; line-height: 1.75;
+  color: var(--muted); max-width: 460px; margin-bottom: 2.75rem;
+  opacity: 0; transform: translateY(20px);
+}
+.btn-row {
+  display: flex; gap: 0.9rem; flex-wrap: wrap;
+  opacity: 0; transform: translateY(20px);
+}
+.btn-p {
+  background: linear-gradient(135deg, var(--blue), var(--blue2));
+  color: #fff; padding: 0.85rem 2rem; border-radius: 100px;
+  text-decoration: none; font-size: 0.9rem; font-weight: 500;
+  box-shadow: 0 4px 24px rgba(74,174,232,0.28), inset 0 1px 0 rgba(255,255,255,0.12);
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+  display: inline-block;
+}
+.btn-p:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 40px rgba(74,174,232,0.48); }
+.btn-g {
+  border: 1px solid rgba(255,255,255,0.14); color: #fff;
+  padding: 0.85rem 2rem; border-radius: 100px; text-decoration: none;
+  font-size: 0.9rem; font-weight: 400; background: rgba(255,255,255,0.04);
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+.btn-g:hover { border-color: var(--blue); background: rgba(74,174,232,0.08); transform: translateY(-2px); }
+
+.scroll-cue {
+  position: absolute; bottom: 2.5rem; left: 3.5rem;
+  display: flex; align-items: center; gap: 0.7rem;
+  opacity: 0;
+}
+.scroll-cue span {
+  font-size: 0.67rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+}
+.scroll-line {
+  width: 36px; height: 1px;
+  background: linear-gradient(90deg, var(--blue), transparent);
+  animation: sp 2s ease-in-out infinite;
+}
+@keyframes sp {
+  0%,100%{opacity:.3;transform:scaleX(1)} 50%{opacity:1;transform:scaleX(1.4)}
+}
+
+/* MARQUEE */
+.mq {
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  padding: 1.1rem 0; overflow: hidden;
+}
+.mq-track {
+  display: flex; gap: 2.5rem;
+  animation: mq 28s linear infinite; white-space: nowrap;
+}
+.mq-item {
+  font-family: var(--fd); font-size: 0.68rem;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.15);
+  display: flex; align-items: center; gap: 2.5rem; flex-shrink: 0;
+}
+.mq-item::after {
+  content: ''; width: 3px; height: 3px; border-radius: 50%; background: var(--blue); opacity:0.5;
+}
+@keyframes mq { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* SECTION SHARED */
+.sec {
+  padding: 9rem 3.5rem;
+  max-width: 1220px; margin: 0 auto;
+}
+.lbl {
+  display: block; font-size: 0.67rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--blue); margin-bottom: 1rem;
+}
+h2 {
+  font-family: var(--fd);
+  font-size: clamp(2.8rem, 5vw, 5rem);
+  font-weight: 800; line-height: 0.95; letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+  opacity: 0; transform: translateY(30px);
+}
+.body {
+  font-size: 1rem; line-height: 1.78; font-weight: 300;
+  color: var(--muted); max-width: 460px; margin-bottom: 2.5rem;
+  opacity: 0; transform: translateY(20px);
+}
+
+/* HOW IT WORKS */
+.steps-hd { margin-bottom: 5rem; }
+.steps-hd h2 { max-width: 420px; }
+.steps-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: var(--line);
+}
+.step {
+  background: var(--navy); padding: 3rem 2.5rem 3.5rem;
+  position: relative; overflow: hidden;
+  opacity: 0; transform: translateY(30px);
+}
+.step::before {
+  content: ''; position: absolute; top:0; left:0; right:0; height:1px;
+  background: linear-gradient(90deg, var(--blue), var(--blue2));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.55s cubic-bezier(0.16,1,0.3,1);
+}
+.step:hover::before { transform: scaleX(1); }
+.step-n {
+  font-family: var(--fd); font-size: 5rem; font-weight: 800;
+  line-height: 1; letter-spacing: -0.05em;
+  color: rgba(255,255,255,0.04); margin-bottom: 2rem;
+}
+.step-ic {
+  width: 42px; height: 42px; border-radius: 10px;
+  border: 1px solid rgba(74,174,232,0.18);
+  background: rgba(74,174,232,0.06);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; margin-bottom: 1.4rem;
+}
+.step h3 {
+  font-family: var(--fd); font-size: 1.25rem; font-weight: 700;
+  letter-spacing: -0.02em; margin-bottom: 0.7rem;
+}
+.step p { font-size: 0.875rem; line-height: 1.75; color: var(--muted); font-weight: 300; }
+
+/* SPLIT LAYOUT */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+
+/* FEATURE CARD */
+.fcard {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--line); border-radius: 20px; padding: 2.75rem;
+  position: relative; overflow: hidden;
+  opacity: 0; transform: translateX(50px);
+}
+.fcard.from-left { transform: translateX(-50px); }
+.fcard::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 25% 25%, rgba(74,174,232,0.07) 0%, transparent 60%);
+  pointer-events: none;
+}
+.price-big {
+  font-family: var(--fd); font-size: 4.5rem; font-weight: 800;
+  line-height: 1; letter-spacing: -0.04em;
+  background: linear-gradient(135deg, var(--blue), var(--blue2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.price-per { font-size: 0.875rem; color: var(--muted); margin-bottom: 2rem; }
+.flist { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+.flist li {
+  display: flex; align-items: flex-start; gap: 0.6rem;
+  font-size: 0.875rem; color: var(--muted); line-height: 1.55; font-weight: 300;
+}
+.flist li::before {
+  content: ''; flex-shrink: 0; margin-top: 3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--blue2));
+}
+
+/* STATS */
+.stats-wrap {
+  padding: 0 3.5rem 9rem; max-width: 1220px; margin: 0 auto;
+  border-top: 1px solid var(--line);
+}
+.stats-wrap .lbl { padding-top: 6rem; text-align: center; margin-bottom: 3.5rem; }
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 1px; background: var(--line);
+}
+.stat {
+  background: var(--navy); padding: 3rem 2rem; text-align: center;
+  opacity: 0; transform: translateY(20px);
+}
+.stat-n {
+  font-family: var(--fd); font-size: clamp(2.5rem,4vw,3.5rem); font-weight: 800;
+  letter-spacing: -0.04em; line-height: 1; margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--blue), var(--blue2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.stat-l { font-size: 0.7rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
+
+/* CTA SECTION */
+.cta-sec {
+  padding: 10rem 3.5rem; text-align: center; position: relative; overflow: hidden;
+}
+.cta-sec::before {
+  content: ''; position: absolute; top:50%; left:50%;
+  transform: translate(-50%,-50%);
+  width: 800px; height: 500px;
+  background: radial-gradient(ellipse, rgba(34,116,200,0.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+.cta-sec h2 { max-width: 580px; margin: 0 auto 1.25rem; }
+.cta-sec .body { max-width: 400px; margin: 0 auto 3rem; text-align: center; }
+.cta-sec .btn-row { justify-content: center; opacity: 0; transform: translateY(20px); }
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--line);
+  padding: 2.5rem 3.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 1220px; margin: 0 auto;
+}
+footer p { font-size: 0.78rem; color: rgba(255,255,255,0.18); }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  header { padding: 1.25rem 1.5rem; }
+  nav { display: none; }
+  #hero { padding: 8rem 1.5rem 5rem; }
+  .sec { padding: 5rem 1.5rem; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .split { grid-template-columns: 1fr; gap: 3rem; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .stats-wrap { padding: 0 1.5rem 5rem; }
+  .cta-sec { padding: 6rem 1.5rem; }
+  footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
+  .scroll-cue { left: 1.5rem; }
+  .fcard { transform: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div id="cdot"></div>
+<div id="cring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-wordmark">Parium</div>
+  <div class="loader-track"><div class="loader-bar" id="lbar"></div></div>
+  <div class="loader-pct" id="lpct">0%</div>
+</div>
+
+<!-- THREE.JS CANVAS -->
+<canvas id="c3d"></canvas>
+
+<!-- HEADER -->
+<header>
+  <a href="#" class="logo">
+    <div class="logo-rings"></div>
+    <span class="logo-name">Parium</span>
+  </a>
+  <nav>
+    <a href="#hiw">Hur det fungerar</a>
+    <a href="#seekers">Jobbsökare</a>
+    <a href="#employers">Arbetsgivare</a>
+    <a href="#cta" class="nav-cta">Kom igång</a>
+  </nav>
+</header>
+
+<div id="content">
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-inner">
+      <span class="hero-label">Rekrytering reimaginerad</span>
+      <h1>Hitta din<br><span class="gr">match.</span></h1>
+      <p class="hero-sub">Swipa dig till ditt nästa jobb — eller hitta din nästa stjärna. Parium kopplar ihop kandidater och arbetsgivare med precision och enkelhet.</p>
+      <div class="btn-row">
+        <a href="#" class="btn-p">Sök jobb — 29 kr/mån</a>
+        <a href="#" class="btn-g">Jag är arbetsgivare →</a>
+      </div>
+    </div>
+    <div class="scroll-cue">
+      <div class="scroll-line"></div>
+      <span>Scrolla</span>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="mq">
+    <div class="mq-track">
+      <div class="mq-item">Swipa jobb</div>
+      <div class="mq-item">Matcha direkt</div>
+      <div class="mq-item">Chatta med arbetsgivare</div>
+      <div class="mq-item">Boka intervju</div>
+      <div class="mq-item">Hitta talang</div>
+      <div class="mq-item">29 kr per månad</div>
+      <div class="mq-item">Swipa jobb</div>
+      <div class="mq-item">Matcha direkt</div>
+      <div class="mq-item">Chatta med arbetsgivare</div>
+      <div class="mq-item">Boka intervju</div>
+      <div class="mq-item">Hitta talang</div>
+      <div class="mq-item">29 kr per månad</div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="sec" id="hiw">
+    <div class="steps-hd">
+      <span class="lbl">001 — Hur det fungerar</span>
+      <h2>Tre steg till<br>din matchning</h2>
+    </div>
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-n">01</div>
+        <div class="step-ic">👤</div>
+        <h3>Skapa din profil</h3>
+        <p>Bygg en komplett profil på under 5 minuter. Kompetenser, erfarenhet och vad du letar efter.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">02</div>
+        <div class="step-ic">👆</div>
+        <h3>Swipa jobb</h3>
+        <p>Bläddra bland skräddarsydda annonser. Swipa höger på det som intresserar — hoppa över resten.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">03</div>
+        <div class="step-ic">🤝</div>
+        <h3>Matcha &amp; möts</h3>
+        <p>Kopplas ihop med arbetsgivare som är intresserade. Chatta och boka möten direkt i appen.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOB SEEKERS -->
+  <div class="sec" id="seekers">
+    <div class="split">
+      <div>
+        <span class="lbl">002 — För jobbsökare</span>
+        <h2>Hitta jobbet<br>du faktiskt<br>vill ha</h2>
+        <p class="body">Sluta skicka ansökningar i tomma intet. Med Parium swiper du på relevanta jobb — och arbetsgivarna hör av sig till dig.</p>
+        <div class="btn-row" style="opacity:0;transform:translateY(20px)">
+          <a href="#" class="btn-p">Kom igång idag</a>
+        </div>
+      </div>
+      <div class="fcard">
+        <div class="price-big">29</div>
+        <p class="price-per">kronor / månad</p>
+        <ul class="flist">
+          <li>Obegränsad access till alla jobbannonser</li>
+          <li>Swipe-gränssnitt — snabbt och intuitivt</li>
+          <li>Direktchatt med arbetsgivare</li>
+          <li>Inbyggd mötesbookning</li>
+          <li>Matchningspoäng baserat på din profil</li>
+          <li>Push-notiser vid nya matcher</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPLOYERS -->
+  <div class="sec" id="employers">
+    <div class="split">
+      <div class="fcard from-left">
+        <ul class="flist" style="margin-top:0">
+          <li>Publicera jobbannonser enkelt</li>
+          <li>Se kandidater som matchat ditt jobb</li>
+          <li>Direktkommunikation utan mellanhänder</li>
+          <li>Schemalägg intervjuer direkt i appen</li>
+          <li>Kandidatöversikt med kompetensfilter</li>
+          <li>Rekryteringsanalys och statistik</li>
+        </ul>
+      </div>
+      <div>
+        <span class="lbl">003 — För arbetsgivare</span>
+        <h2>Hitta din<br>nästa<br>stjärna</h2>
+        <p class="body">Publicera jobb, bläddra bland kvalificerade kandidater och ta kontakt direkt. Utan mellanhand, utan friktion.</p>
+        <div class="btn-row" style="opacity:0;transform:translateY(20px)">
+          <a href="#" class="btn-p">Publicera ett jobb</a>
+          <a href="#" class="btn-g">Läs mer →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-wrap">
+    <span class="lbl">004 — Parium i siffror</span>
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-n"><span class="cnt" data-t="12000">0</span>+</div>
+        <div class="stat-l">Aktiva jobbsökare</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n"><span class="cnt" data-t="850">0</span>+</div>
+        <div class="stat-l">Arbetsgivare</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n"><span class="cnt" data-t="94">0</span>%</div>
+        <div class="stat-l">Matchningsträffsäkerhet</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n"><span class="cnt" data-t="29">0</span> kr</div>
+        <div class="stat-l">Per månad</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-sec" id="cta">
+    <span class="lbl" style="display:block;text-align:center">005 — Kom igång</span>
+    <h2>Redo att hitta<br>din matchning?</h2>
+    <p class="body">Gå med tusentals jobbsökare och arbetsgivare som redan använder Parium. Det tar under 5 minuter.</p>
+    <div class="btn-row">
+      <a href="#" class="btn-p">Börja söka jobb — 29 kr/mån</a>
+      <a href="#" class="btn-g">Publicera som arbetsgivare</a>
+    </div>
+  </div>
+
+  <footer>
+    <a href="#" class="logo">
+      <div class="logo-rings"></div>
+      <span class="logo-name" style="font-size:1rem">Parium</span>
+    </a>
+    <p>© 2025 Parium AB. Alla rättigheter förbehållna.</p>
+    <p>parium.se</p>
+  </footer>
+
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ── LOADER ──────────────────────────────────────────────
+const lbar = document.getElementById('lbar');
+const lpct = document.getElementById('lpct');
+let p = 0;
+const lt = setInterval(() => {
+  p = Math.min(100, p + Math.random() * 16);
+  lbar.style.width = p + '%';
+  lpct.textContent = Math.floor(p) + '%';
+  if (p >= 100) { clearInterval(lt); setTimeout(afterLoad, 250); }
+}, 75);
+
+// ── THREE.JS ─────────────────────────────────────────────
+const canvas = document.getElementById('c3d');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 100);
+cam.position.set(0, 0, 7);
+
+// Lights
+scene.add(new THREE.AmbientLight(0x091624, 5));
+const kl = new THREE.PointLight(0x4AAEE8, 70, 28);
+kl.position.set(4, 4, 4); scene.add(kl);
+const fl = new THREE.PointLight(0x2274C8, 55, 28);
+fl.position.set(-4, -3, 2); scene.add(fl);
+const rl = new THREE.DirectionalLight(0xffffff, 0.4);
+rl.position.set(0, 6, -4); scene.add(rl);
+
+// Ring group
+const grp = new THREE.Group();
+scene.add(grp);
+
+const rGeo = new THREE.TorusGeometry(1.5, 0.095, 32, 200);
+const m1 = new THREE.MeshPhysicalMaterial({
+  color: 0x4AAEE8, metalness: 0.5, roughness: 0.05,
+  transparent: true, opacity: 0,
+  emissive: 0x1a4a7a, emissiveIntensity: 0.35,
+});
+const m2 = new THREE.MeshPhysicalMaterial({
+  color: 0x2274C8, metalness: 0.5, roughness: 0.05,
+  transparent: true, opacity: 0,
+  emissive: 0x0a2240, emissiveIntensity: 0.35,
+});
+
+const r1 = new THREE.Mesh(rGeo, m1);
+r1.position.x = -0.55;
+r1.rotation.x = Math.PI * 0.35;
+r1.rotation.z = Math.PI * 0.08;
+r1.scale.setScalar(0.3);
+
+const r2 = new THREE.Mesh(rGeo, m2);
+r2.position.x = 0.55;
+r2.rotation.x = Math.PI * 0.35;
+r2.rotation.y = Math.PI * 0.5;
+r2.rotation.z = -Math.PI * 0.08;
+r2.scale.setScalar(0.3);
+
+grp.add(r1, r2);
+
+// Particles
+const pc = 380, pp = new Float32Array(pc * 3);
+for (let i = 0; i < pc; i++) {
+  pp[i*3]   = (Math.random() - 0.5) * 26;
+  pp[i*3+1] = (Math.random() - 0.5) * 26;
+  pp[i*3+2] = (Math.random() - 0.5) * 12 - 3;
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(pp, 3));
+scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({
+  color: 0x4AAEE8, size: 0.033, transparent: true, opacity: 0.28, sizeAttenuation: true,
+})));
+
+// Mouse
+let mx = 0, my = 0;
+document.addEventListener('mousemove', e => {
+  mx = (e.clientX / innerWidth - 0.5) * 2;
+  my = -(e.clientY / innerHeight - 0.5) * 2;
+});
+
+// Scroll progress
+let sp = 0;
+ScrollTrigger.create({
+  trigger: '#content', start: 'top top', end: 'bottom bottom',
+  onUpdate: s => { sp = s.progress; }
+});
+
+// Render loop
+const clk = new THREE.Clock();
+(function loop() {
+  requestAnimationFrame(loop);
+  const t = clk.getElapsedTime();
+  r1.rotation.y += 0.004;
+  r2.rotation.y -= 0.0038;
+  grp.position.y = Math.sin(t * 0.38) * 0.09;
+  grp.rotation.y += (mx * 0.22 - grp.rotation.y) * 0.04;
+  grp.rotation.x += (my * 0.14 - grp.rotation.x) * 0.04;
+  grp.position.z = -sp * 2.5;
+  renderer.render(scene, cam);
+})();
+
+window.addEventListener('resize', () => {
+  cam.aspect = innerWidth / innerHeight;
+  cam.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+});
+
+// ── LENIS ────────────────────────────────────────────────
+const lenis = new Lenis({
+  duration: 1.2,
+  easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  smoothWheel: true,
+});
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(time => lenis.raf(time * 1000));
+gsap.ticker.lagSmoothing(0);
+
+// ── CURSOR ───────────────────────────────────────────────
+const cdot = document.getElementById('cdot');
+const cring = document.getElementById('cring');
+document.addEventListener('mousemove', e => {
+  gsap.to(cdot,  { x: e.clientX, y: e.clientY, duration: 0.08 });
+  gsap.to(cring, { x: e.clientX, y: e.clientY, duration: 0.2, ease: 'power2.out' });
+});
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => gsap.to(cring, { scale: 2.2, opacity: 0.5, duration: 0.3 }));
+  el.addEventListener('mouseleave', () => gsap.to(cring, { scale: 1,   opacity: 1,   duration: 0.3 }));
+});
+
+// ── AFTER LOADER ─────────────────────────────────────────
+function afterLoad() {
+  gsap.to('#loader', {
+    opacity: 0, duration: 0.65, ease: 'power2.inOut',
+    onComplete: () => document.getElementById('loader').remove(),
+  });
+
+  // Ring entrance
+  gsap.to([m1, m2], { opacity: 0.95, duration: 1.6, delay: 0.2, ease: 'power2.out' });
+  gsap.to(r1.scale, { x:1, y:1, z:1, duration: 2.1, delay: 0.15, ease: 'elastic.out(1, 0.55)' });
+  gsap.to(r2.scale, { x:1, y:1, z:1, duration: 2.1, delay: 0.35, ease: 'elastic.out(1, 0.55)' });
+
+  // Hero text
+  gsap.timeline({ delay: 0.25 })
+    .to('.hero-label', { opacity:1, y:0, duration:0.85, ease:'power3.out' })
+    .to('h1',          { opacity:1, y:0, duration:1.1,  ease:'power3.out' }, '-=0.55')
+    .to('.hero-sub',   { opacity:1, y:0, duration:0.9,  ease:'power3.out' }, '-=0.65')
+    .to('#hero .btn-row', { opacity:1, y:0, duration:0.8, ease:'power3.out' }, '-=0.55')
+    .to('.scroll-cue', { opacity:1,       duration:0.6 }, '-=0.2');
+
+  // Scroll reveals
+  function reveal(selector, vars, trigger) {
+    gsap.to(selector, {
+      ...vars, duration: 0.9, ease: 'power3.out',
+      scrollTrigger: { trigger: trigger || selector, start: 'top 84%', toggleActions: 'play none none none' },
+    });
+  }
+
+  // How it works
+  reveal('#hiw h2',   { opacity:1, y:0 });
+  reveal('.step',     { opacity:1, y:0, stagger:0.12 }, '#hiw .steps-grid');
+
+  // Seekers
+  gsap.set('#seekers h2',       { x:-55, opacity:0 });
+  gsap.set('#seekers .body',    { opacity:0, y:20 });
+  gsap.set('#seekers .btn-row', { opacity:0, y:20 });
+  reveal('#seekers h2',         { x:0, opacity:1 });
+  reveal('#seekers .body',      { opacity:1, y:0 });
+  reveal('#seekers .btn-row',   { opacity:1, y:0 });
+  gsap.to('#seekers .fcard',    {
+    opacity:1, x:0, duration:0.95, ease:'power3.out',
+    scrollTrigger:{ trigger:'#seekers .fcard', start:'top 84%', toggleActions:'play none none none' },
+  });
+
+  // Employers
+  gsap.set('#employers h2',       { x:55, opacity:0 });
+  gsap.set('#employers .body',    { opacity:0, y:20 });
+  gsap.set('#employers .btn-row', { opacity:0, y:20 });
+  reveal('#employers h2',         { x:0, opacity:1 });
+  reveal('#employers .body',      { opacity:1, y:0 });
+  reveal('#employers .btn-row',   { opacity:1, y:0 });
+  gsap.to('#employers .fcard',    {
+    opacity:1, x:0, duration:0.95, ease:'power3.out',
+    scrollTrigger:{ trigger:'#employers .fcard', start:'top 84%', toggleActions:'play none none none' },
+  });
+
+  // Stats
+  reveal('.stat', { opacity:1, y:0, stagger:0.1 }, '.stats-grid');
+
+  // CTA
+  gsap.set('.cta-sec h2',     { scale:0.9, opacity:0 });
+  gsap.set('.cta-sec .body',  { opacity:0, y:20 });
+  gsap.to('.cta-sec h2',      {
+    scale:1, opacity:1, duration:1, ease:'power3.out',
+    scrollTrigger:{ trigger:'.cta-sec h2', start:'top 84%', toggleActions:'play none none none' },
+  });
+  reveal('.cta-sec .body',     { opacity:1, y:0 });
+  reveal('.cta-sec .btn-row',  { opacity:1, y:0 });
+
+  // Counting numbers
+  document.querySelectorAll('.cnt').forEach(el => {
+    const tgt = parseInt(el.dataset.t);
+    ScrollTrigger.create({
+      trigger: el, start: 'top 80%', once: true,
+      onEnter: () => {
+        gsap.to({ v:0 }, {
+          v: tgt, duration: 2, ease: 'power2.out',
+          onUpdate: function() { el.textContent = Math.round(this.targets()[0].v).toLocaleString('sv-SE'); },
+        });
+      },
+    });
+  });
+}
+</script>
+</body>
+</html>
