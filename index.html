@@ -7,797 +7,671 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
 <style>
 :root {
-  --navy:   #091624;
-  --navy2:  #0d1f33;
+  --bg:     #001935;
+  --bg2:    #021e3a;
   --blue:   #4AAEE8;
   --blue2:  #2274C8;
   --text:   #FFFFFF;
-  --muted:  rgba(255,255,255,0.55);
-  --line:   rgba(255,255,255,0.07);
-  --glow:   rgba(74,174,232,0.15);
+  --muted:  rgba(255,255,255,0.5);
+  --line:   rgba(255,255,255,0.08);
   --fd: 'Syne', sans-serif;
   --fb: 'DM Sans', sans-serif;
 }
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-html { font-size: 16px; }
+html { font-size:16px; scroll-behavior:auto; }
 
 body {
-  background: var(--navy);
+  background: var(--bg);
   color: var(--text);
   font-family: var(--fb);
   overflow-x: hidden;
-  cursor: none;
 }
 
-/* LOADER */
+/* ── LOADER ── */
 #loader {
   position: fixed; inset: 0;
-  background: var(--navy);
-  z-index: 1000;
+  background: var(--bg);
+  z-index: 9000;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 1.75rem;
+  gap: 2rem;
 }
-.loader-wordmark {
-  font-family: var(--fd);
-  font-size: 1.4rem; font-weight: 700;
-  letter-spacing: -0.02em;
-  color: rgba(255,255,255,0.3);
-}
+.loader-logo { width: 140px; opacity: 0.9; }
 .loader-track {
-  width: 180px; height: 1px;
-  background: rgba(255,255,255,0.08);
-  position: relative; overflow: hidden;
+  width: 200px; height: 2px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px; overflow: hidden;
 }
 .loader-bar {
-  position: absolute; top: 0; left: 0;
   height: 100%; width: 0%;
-  background: linear-gradient(90deg, var(--blue2), var(--blue));
+  background: var(--blue);
+  border-radius: 2px;
+  transition: width 0.1s linear;
 }
 .loader-pct {
+  font-family: var(--fb);
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+}
+
+/* ── HEADER ── */
+.site-header {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 1.5rem 3rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(0,25,53,0.9) 0%, transparent 100%);
+  pointer-events: none;
+}
+.header-logo { width: 110px; pointer-events: auto; }
+.header-nav {
+  display: flex; gap: 2.5rem;
+  list-style: none;
+  pointer-events: auto;
+}
+.header-nav a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+.header-nav a:hover { color: #fff; }
+.header-cta {
+  background: var(--blue);
+  color: #001935 !important;
+  font-weight: 500 !important;
+  padding: 0.55rem 1.4rem;
+  border-radius: 100px;
+  pointer-events: auto;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: opacity 0.2s;
+}
+.header-cta:hover { opacity: 0.85; }
+
+/* ── VIDEO SCROLL SECTION ── */
+#video-wrap {
+  position: relative;
+  height: 500vh;
+}
+#video-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+#hero-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.video-overlay-text {
+  position: absolute;
+  bottom: 8vh;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+}
+.video-overlay-text h1 {
+  font-family: var(--fd);
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: 1rem;
+}
+.video-overlay-text p {
+  font-size: 1.1rem;
+  color: var(--muted);
+  font-weight: 300;
+}
+.scroll-hint {
+  position: absolute;
+  bottom: 3vh;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+}
+.scroll-hint span {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.scroll-arrow {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, transparent, var(--blue));
+  animation: scrollpulse 1.5s ease-in-out infinite;
+}
+@keyframes scrollpulse {
+  0%,100% { opacity: 0.3; transform: scaleY(0.8); }
+  50% { opacity: 1; transform: scaleY(1); }
+}
+
+/* ── PAGE CONTENT ── */
+#page-content {
+  background: var(--bg);
+  position: relative;
+  z-index: 10;
+}
+
+/* ── TAGLINE SECTION ── */
+.section-tagline {
+  padding: 10rem 5vw 8rem;
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.section-tagline .label {
   font-size: 0.7rem;
-  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--blue);
+  margin-bottom: 2rem;
+}
+.section-tagline h2 {
+  font-family: var(--fd);
+  font-size: clamp(3rem, 6vw, 6rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin-bottom: 2rem;
+}
+.section-tagline p {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* ── TWO SIDES ── */
+.section-sides {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin: 0 5vw 8rem;
+}
+.side-card {
+  padding: 4rem 3.5rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--line);
+}
+.side-card:first-child { border-radius: 1.5rem 0 0 1.5rem; }
+.side-card:last-child  { border-radius: 0 1.5rem 1.5rem 0; }
+.side-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--blue);
+  margin-bottom: 1.5rem;
+}
+.side-card h3 {
+  font-family: var(--fd);
+  font-size: clamp(2rem, 3.5vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+}
+.side-card p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--muted);
+  margin-bottom: 2.5rem;
+}
+.price-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin-bottom: 2rem;
+}
+.price-amount {
+  font-family: var(--fd);
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--blue);
+  line-height: 1;
+}
+.price-unit {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.side-btn {
+  display: inline-block;
+  padding: 0.85rem 2rem;
+  border-radius: 100px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.side-btn-primary {
+  background: var(--blue);
+  color: #001935;
+}
+.side-btn-primary:hover { opacity: 0.85; }
+.side-btn-secondary {
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+}
+.side-btn-secondary:hover { border-color: rgba(255,255,255,0.5); }
+
+/* ── HOW IT WORKS ── */
+.section-how {
+  padding: 6rem 5vw 8rem;
+  text-align: center;
+}
+.section-how .label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--blue);
+  margin-bottom: 1.5rem;
+}
+.section-how h2 {
+  font-family: var(--fd);
+  font-size: clamp(2.5rem, 4vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 5rem;
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.step-num {
+  font-family: var(--fd);
+  font-size: 4rem;
+  font-weight: 800;
+  color: rgba(74,174,232,0.15);
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+.step h4 {
+  font-family: var(--fd);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.step p {
+  font-size: 0.9rem;
+  line-height: 1.6;
   color: var(--muted);
 }
 
-/* CURSOR */
-#cdot {
-  width: 6px; height: 6px;
-  background: var(--blue);
-  border-radius: 50%;
-  position: fixed; top:0; left:0;
-  pointer-events: none; z-index: 900;
-  transform: translate(-50%,-50%);
-}
-#cring {
-  width: 26px; height: 26px;
-  border: 1px solid rgba(74,174,232,0.45);
-  border-radius: 50%;
-  position: fixed; top:0; left:0;
-  pointer-events: none; z-index: 900;
-  transform: translate(-50%,-50%);
-}
-
-/* CANVAS */
-#c3d {
-  position: fixed; inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* NOISE */
-.noise {
-  position: fixed; inset: 0; z-index: 50;
-  pointer-events: none; opacity: 0.028;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* HEADER */
-header {
-  position: fixed; top:0; left:0; right:0; z-index: 100;
-  padding: 1.75rem 3.5rem;
-  display: flex; align-items: center; justify-content: space-between;
-  background: linear-gradient(180deg, rgba(9,22,36,0.9) 0%, transparent 100%);
-  backdrop-filter: blur(6px);
-}
-.logo { display: flex; align-items: center; gap: 0.65rem; text-decoration: none; }
-.logo-rings { width: 30px; height: 20px; position: relative; }
-.logo-rings::before, .logo-rings::after {
-  content: ''; position: absolute;
-  width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid;
-}
-.logo-rings::before { left:0; top:1px; border-color: var(--blue2); }
-.logo-rings::after  { right:0; top:1px; border-color: var(--blue); }
-.logo-name {
-  font-family: var(--fd); font-size: 1.2rem; font-weight: 700;
-  letter-spacing: -0.02em; color: var(--text);
-}
-nav { display: flex; align-items: center; gap: 2.5rem; }
-nav a {
-  font-size: 0.83rem; color: var(--muted); text-decoration: none;
-  transition: color 0.2s;
-}
-nav a:hover { color: var(--text); }
-.nav-cta {
-  color: var(--text) !important;
-  background: var(--blue);
-  padding: 0.5rem 1.4rem; border-radius: 100px;
-  font-weight: 500;
-  box-shadow: 0 0 20px rgba(74,174,232,0.25);
-  transition: background 0.2s, transform 0.15s, box-shadow 0.2s !important;
-}
-.nav-cta:hover {
-  background: #5DC4FF !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 28px rgba(74,174,232,0.45) !important;
-}
-
-/* CONTENT */
-#content { position: relative; z-index: 10; }
-
-/* HERO */
-#hero {
-  min-height: 100vh;
-  display: flex; align-items: center;
-  padding: 9rem 3.5rem 6rem;
-  position: relative;
-}
-.hero-inner { max-width: 580px; }
-.hero-label {
-  display: block;
-  font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase;
-  color: var(--blue); margin-bottom: 1.5rem;
-  opacity: 0; transform: translateY(16px);
-}
-h1 {
-  font-family: var(--fd);
-  font-size: clamp(4.5rem, 9vw, 9rem);
-  font-weight: 800; line-height: 0.92; letter-spacing: -0.04em;
-  margin-bottom: 1.75rem;
-  opacity: 0; transform: translateY(40px);
-}
-h1 .gr {
-  display: block;
-  background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-.hero-sub {
-  font-size: 1.05rem; font-weight: 300; line-height: 1.75;
-  color: var(--muted); max-width: 460px; margin-bottom: 2.75rem;
-  opacity: 0; transform: translateY(20px);
-}
-.btn-row {
-  display: flex; gap: 0.9rem; flex-wrap: wrap;
-  opacity: 0; transform: translateY(20px);
-}
-.btn-p {
-  background: linear-gradient(135deg, var(--blue), var(--blue2));
-  color: #fff; padding: 0.85rem 2rem; border-radius: 100px;
-  text-decoration: none; font-size: 0.9rem; font-weight: 500;
-  box-shadow: 0 4px 24px rgba(74,174,232,0.28), inset 0 1px 0 rgba(255,255,255,0.12);
-  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
-  display: inline-block;
-}
-.btn-p:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 40px rgba(74,174,232,0.48); }
-.btn-g {
-  border: 1px solid rgba(255,255,255,0.14); color: #fff;
-  padding: 0.85rem 2rem; border-radius: 100px; text-decoration: none;
-  font-size: 0.9rem; font-weight: 400; background: rgba(255,255,255,0.04);
-  transition: border-color 0.2s, background 0.2s, transform 0.2s;
-}
-.btn-g:hover { border-color: var(--blue); background: rgba(74,174,232,0.08); transform: translateY(-2px); }
-
-.scroll-cue {
-  position: absolute; bottom: 2.5rem; left: 3.5rem;
-  display: flex; align-items: center; gap: 0.7rem;
-  opacity: 0;
-}
-.scroll-cue span {
-  font-size: 0.67rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
-}
-.scroll-line {
-  width: 36px; height: 1px;
-  background: linear-gradient(90deg, var(--blue), transparent);
-  animation: sp 2s ease-in-out infinite;
-}
-@keyframes sp {
-  0%,100%{opacity:.3;transform:scaleX(1)} 50%{opacity:1;transform:scaleX(1.4)}
-}
-
-/* MARQUEE */
-.mq {
-  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
-  padding: 1.1rem 0; overflow: hidden;
-}
-.mq-track {
-  display: flex; gap: 2.5rem;
-  animation: mq 28s linear infinite; white-space: nowrap;
-}
-.mq-item {
-  font-family: var(--fd); font-size: 0.68rem;
-  letter-spacing: 0.22em; text-transform: uppercase;
-  color: rgba(255,255,255,0.15);
-  display: flex; align-items: center; gap: 2.5rem; flex-shrink: 0;
-}
-.mq-item::after {
-  content: ''; width: 3px; height: 3px; border-radius: 50%; background: var(--blue); opacity:0.5;
-}
-@keyframes mq { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-
-/* SECTION SHARED */
-.sec {
-  padding: 9rem 3.5rem;
-  max-width: 1220px; margin: 0 auto;
-}
-.lbl {
-  display: block; font-size: 0.67rem; letter-spacing: 0.22em;
-  text-transform: uppercase; color: var(--blue); margin-bottom: 1rem;
-}
-h2 {
-  font-family: var(--fd);
-  font-size: clamp(2.8rem, 5vw, 5rem);
-  font-weight: 800; line-height: 0.95; letter-spacing: -0.03em;
-  margin-bottom: 1.25rem;
-  opacity: 0; transform: translateY(30px);
-}
-.body {
-  font-size: 1rem; line-height: 1.78; font-weight: 300;
-  color: var(--muted); max-width: 460px; margin-bottom: 2.5rem;
-  opacity: 0; transform: translateY(20px);
-}
-
-/* HOW IT WORKS */
-.steps-hd { margin-bottom: 5rem; }
-.steps-hd h2 { max-width: 420px; }
-.steps-grid {
-  display: grid; grid-template-columns: repeat(3,1fr);
-  gap: 1px; background: var(--line);
-}
-.step {
-  background: var(--navy); padding: 3rem 2.5rem 3.5rem;
-  position: relative; overflow: hidden;
-  opacity: 0; transform: translateY(30px);
-}
-.step::before {
-  content: ''; position: absolute; top:0; left:0; right:0; height:1px;
-  background: linear-gradient(90deg, var(--blue), var(--blue2));
-  transform: scaleX(0); transform-origin: left;
-  transition: transform 0.55s cubic-bezier(0.16,1,0.3,1);
-}
-.step:hover::before { transform: scaleX(1); }
-.step-n {
-  font-family: var(--fd); font-size: 5rem; font-weight: 800;
-  line-height: 1; letter-spacing: -0.05em;
-  color: rgba(255,255,255,0.04); margin-bottom: 2rem;
-}
-.step-ic {
-  width: 42px; height: 42px; border-radius: 10px;
-  border: 1px solid rgba(74,174,232,0.18);
-  background: rgba(74,174,232,0.06);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.25rem; margin-bottom: 1.4rem;
-}
-.step h3 {
-  font-family: var(--fd); font-size: 1.25rem; font-weight: 700;
-  letter-spacing: -0.02em; margin-bottom: 0.7rem;
-}
-.step p { font-size: 0.875rem; line-height: 1.75; color: var(--muted); font-weight: 300; }
-
-/* SPLIT LAYOUT */
-.split { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
-
-/* FEATURE CARD */
-.fcard {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--line); border-radius: 20px; padding: 2.75rem;
-  position: relative; overflow: hidden;
-  opacity: 0; transform: translateX(50px);
-}
-.fcard.from-left { transform: translateX(-50px); }
-.fcard::after {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 25% 25%, rgba(74,174,232,0.07) 0%, transparent 60%);
-  pointer-events: none;
-}
-.price-big {
-  font-family: var(--fd); font-size: 4.5rem; font-weight: 800;
-  line-height: 1; letter-spacing: -0.04em;
-  background: linear-gradient(135deg, var(--blue), var(--blue2));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-.price-per { font-size: 0.875rem; color: var(--muted); margin-bottom: 2rem; }
-.flist { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
-.flist li {
-  display: flex; align-items: flex-start; gap: 0.6rem;
-  font-size: 0.875rem; color: var(--muted); line-height: 1.55; font-weight: 300;
-}
-.flist li::before {
-  content: ''; flex-shrink: 0; margin-top: 3px;
-  width: 14px; height: 14px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--blue), var(--blue2));
-}
-
-/* STATS */
-.stats-wrap {
-  padding: 0 3.5rem 9rem; max-width: 1220px; margin: 0 auto;
+/* ── STATS ── */
+.section-stats {
+  padding: 5rem 5vw;
+  display: flex;
+  justify-content: center;
+  gap: 8vw;
   border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin: 0 5vw 8rem;
 }
-.stats-wrap .lbl { padding-top: 6rem; text-align: center; margin-bottom: 3.5rem; }
-.stats-grid {
-  display: grid; grid-template-columns: repeat(4,1fr);
-  gap: 1px; background: var(--line);
+.stat-num {
+  font-family: var(--fd);
+  font-size: clamp(3rem, 5vw, 5.5rem);
+  font-weight: 800;
+  color: var(--blue);
+  line-height: 1;
 }
-.stat {
-  background: var(--navy); padding: 3rem 2rem; text-align: center;
-  opacity: 0; transform: translateY(20px);
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  margin-top: 0.5rem;
 }
-.stat-n {
-  font-family: var(--fd); font-size: clamp(2.5rem,4vw,3.5rem); font-weight: 800;
-  letter-spacing: -0.04em; line-height: 1; margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, var(--blue), var(--blue2));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-.stat-l { font-size: 0.7rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
 
-/* CTA SECTION */
-.cta-sec {
-  padding: 10rem 3.5rem; text-align: center; position: relative; overflow: hidden;
+/* ── CTA ── */
+.section-cta {
+  text-align: center;
+  padding: 8rem 5vw 10rem;
 }
-.cta-sec::before {
-  content: ''; position: absolute; top:50%; left:50%;
-  transform: translate(-50%,-50%);
-  width: 800px; height: 500px;
-  background: radial-gradient(ellipse, rgba(34,116,200,0.1) 0%, transparent 65%);
-  pointer-events: none;
+.section-cta .label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--blue);
+  margin-bottom: 1.5rem;
 }
-.cta-sec h2 { max-width: 580px; margin: 0 auto 1.25rem; }
-.cta-sec .body { max-width: 400px; margin: 0 auto 3rem; text-align: center; }
-.cta-sec .btn-row { justify-content: center; opacity: 0; transform: translateY(20px); }
+.section-cta h2 {
+  font-family: var(--fd);
+  font-size: clamp(3rem, 6vw, 6.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  margin-bottom: 3rem;
+}
+.cta-btns {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-large {
+  padding: 1rem 2.5rem;
+  border-radius: 100px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-blue { background: var(--blue); color: #001935; }
+.btn-blue:hover { opacity: 0.85; }
+.btn-outline { border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+.btn-outline:hover { border-color: rgba(255,255,255,0.5); }
 
-/* FOOTER */
+/* ── FOOTER ── */
 footer {
   border-top: 1px solid var(--line);
-  padding: 2.5rem 3.5rem;
-  display: flex; align-items: center; justify-content: space-between;
-  max-width: 1220px; margin: 0 auto;
+  padding: 3rem 5vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-footer p { font-size: 0.78rem; color: rgba(255,255,255,0.18); }
+footer img { width: 80px; opacity: 0.5; }
+footer p {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
 
-/* MOBILE */
+/* ── REVEAL ANIMATIONS ── */
+.reveal { opacity: 0; transform: translateY(40px); }
+
+/* ── MOBILE ── */
 @media (max-width: 768px) {
-  header { padding: 1.25rem 1.5rem; }
-  nav { display: none; }
-  #hero { padding: 8rem 1.5rem 5rem; }
-  .sec { padding: 5rem 1.5rem; }
-  .steps-grid { grid-template-columns: 1fr; }
-  .split { grid-template-columns: 1fr; gap: 3rem; }
-  .stats-grid { grid-template-columns: repeat(2,1fr); }
-  .stats-wrap { padding: 0 1.5rem 5rem; }
-  .cta-sec { padding: 6rem 1.5rem; }
-  footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
-  .scroll-cue { left: 1.5rem; }
-  .fcard { transform: none !important; }
+  .site-header { padding: 1.2rem 1.5rem; }
+  .header-nav { display: none; }
+  .section-sides { grid-template-columns: 1fr; margin: 0 1.5rem 5rem; }
+  .side-card:first-child { border-radius: 1.5rem 1.5rem 0 0; }
+  .side-card:last-child  { border-radius: 0 0 1.5rem 1.5rem; }
+  .steps { grid-template-columns: 1fr; gap: 2.5rem; }
+  .section-stats { flex-direction: column; gap: 3rem; text-align: center; }
+  footer { flex-direction: column; gap: 1rem; text-align: center; }
 }
 </style>
 </head>
 <body>
 
-<div class="noise"></div>
-<div id="cdot"></div>
-<div id="cring"></div>
-
 <!-- LOADER -->
 <div id="loader">
-  <div class="loader-wordmark">Parium</div>
-  <div class="loader-track"><div class="loader-bar" id="lbar"></div></div>
-  <div class="loader-pct" id="lpct">0%</div>
+  <img src="logo.png" alt="Parium" class="loader-logo">
+  <div class="loader-track"><div class="loader-bar" id="loader-bar"></div></div>
+  <div class="loader-pct" id="loader-pct">0%</div>
 </div>
 
-<!-- THREE.JS CANVAS -->
-<canvas id="c3d"></canvas>
-
 <!-- HEADER -->
-<header>
-  <a href="#" class="logo">
-    <div class="logo-rings"></div>
-    <span class="logo-name">Parium</span>
-  </a>
+<header class="site-header">
+  <img src="logo.png" alt="Parium" class="header-logo">
   <nav>
-    <a href="#hiw">Hur det fungerar</a>
-    <a href="#seekers">Jobbsökare</a>
-    <a href="#employers">Arbetsgivare</a>
-    <a href="#cta" class="nav-cta">Kom igång</a>
+    <ul class="header-nav">
+      <li><a href="#jobbsokare">Jobbsökare</a></li>
+      <li><a href="#arbetsgivare">Arbetsgivare</a></li>
+      <li><a href="#hur" >Hur det fungerar</a></li>
+      <li><a href="#kom-igang" class="header-cta">Kom igång</a></li>
+    </ul>
   </nav>
 </header>
 
-<div id="content">
-
-  <!-- HERO -->
-  <section id="hero">
-    <div class="hero-inner">
-      <span class="hero-label">Rekrytering reimaginerad</span>
-      <h1>Hitta din<br><span class="gr">match.</span></h1>
-      <p class="hero-sub">Swipa dig till ditt nästa jobb — eller hitta din nästa stjärna. Parium kopplar ihop kandidater och arbetsgivare med precision och enkelhet.</p>
-      <div class="btn-row">
-        <a href="#" class="btn-p">Sök jobb — 29 kr/mån</a>
-        <a href="#" class="btn-g">Jag är arbetsgivare →</a>
-      </div>
+<!-- VIDEO SCROLL SECTION -->
+<div id="video-wrap">
+  <div id="video-sticky">
+    <canvas id="hero-canvas"></canvas>
+    <div class="video-overlay-text" id="video-end-text">
+      <h1>Rekrytering<br>som matchar.</h1>
+      <p>Enkelt. Snabbt. Rätt person på rätt plats.</p>
     </div>
-    <div class="scroll-cue">
-      <div class="scroll-line"></div>
+    <div class="scroll-hint" id="scroll-hint">
       <span>Scrolla</span>
+      <div class="scroll-arrow"></div>
     </div>
-  </section>
+  </div>
+</div>
 
-  <!-- MARQUEE -->
-  <div class="mq">
-    <div class="mq-track">
-      <div class="mq-item">Swipa jobb</div>
-      <div class="mq-item">Matcha direkt</div>
-      <div class="mq-item">Chatta med arbetsgivare</div>
-      <div class="mq-item">Boka intervju</div>
-      <div class="mq-item">Hitta talang</div>
-      <div class="mq-item">29 kr per månad</div>
-      <div class="mq-item">Swipa jobb</div>
-      <div class="mq-item">Matcha direkt</div>
-      <div class="mq-item">Chatta med arbetsgivare</div>
-      <div class="mq-item">Boka intervju</div>
-      <div class="mq-item">Hitta talang</div>
-      <div class="mq-item">29 kr per månad</div>
+<!-- PAGE CONTENT -->
+<main id="page-content">
+
+  <!-- TAGLINE -->
+  <div class="section-tagline">
+    <p class="label reveal">Sveriges enklaste rekryteringsapp</p>
+    <h2 class="reveal">Hitta rätt.<br>Direkt.</h2>
+    <p class="reveal">Parium kopplar ihop jobbsökare och arbetsgivare — utan krångel, utan mellanhänder. Swipa, matcha och börja kommunicera direkt.</p>
+  </div>
+
+  <!-- TWO SIDES -->
+  <div class="section-sides">
+    <div class="side-card reveal" id="jobbsokare">
+      <p class="side-label">För jobbsökare</p>
+      <h3>Hitta ditt nästa jobb.</h3>
+      <p>Swipa på jobb som matchar dig. Chatta direkt med arbetsgivaren och boka möten — allt i en app.</p>
+      <div class="price-tag">
+        <span class="price-amount">29</span>
+        <span class="price-unit">kr / månad</span>
+      </div>
+      <br>
+      <a href="#" class="side-btn side-btn-primary">Kom igång</a>
+    </div>
+    <div class="side-card reveal" id="arbetsgivare">
+      <p class="side-label">För arbetsgivare</p>
+      <h3>Hitta rätt kandidat.</h3>
+      <p>Lägg ut jobb och nå motiverade kandidater som aktivt söker. Inbyggd chatt och mötesbokning ingår.</p>
+      <div class="price-tag">
+        <span class="price-amount" style="font-size:2rem; color: rgba(255,255,255,0.5);">Kontakta oss</span>
+      </div>
+      <br>
+      <a href="#" class="side-btn side-btn-secondary">Läs mer</a>
     </div>
   </div>
 
   <!-- HOW IT WORKS -->
-  <div class="sec" id="hiw">
-    <div class="steps-hd">
-      <span class="lbl">001 — Hur det fungerar</span>
-      <h2>Tre steg till<br>din matchning</h2>
-    </div>
-    <div class="steps-grid">
-      <div class="step">
-        <div class="step-n">01</div>
-        <div class="step-ic">👤</div>
-        <h3>Skapa din profil</h3>
-        <p>Bygg en komplett profil på under 5 minuter. Kompetenser, erfarenhet och vad du letar efter.</p>
+  <div class="section-how" id="hur">
+    <p class="label reveal">Hur det fungerar</p>
+    <h2 class="reveal">Tre steg.<br>En match.</h2>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <h4>Skapa profil</h4>
+        <p>Registrera dig på under en minut. Ingen CV-mall, inga formulär — bara du.</p>
       </div>
-      <div class="step">
-        <div class="step-n">02</div>
-        <div class="step-ic">👆</div>
-        <h3>Swipa jobb</h3>
-        <p>Bläddra bland skräddarsydda annonser. Swipa höger på det som intresserar — hoppa över resten.</p>
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <h4>Swipa på jobb</h4>
+        <p>Bläddra bland jobb som passar dig. Swipa höger när du är intresserad.</p>
       </div>
-      <div class="step">
-        <div class="step-n">03</div>
-        <div class="step-ic">🤝</div>
-        <h3>Matcha &amp; möts</h3>
-        <p>Kopplas ihop med arbetsgivare som är intresserade. Chatta och boka möten direkt i appen.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- JOB SEEKERS -->
-  <div class="sec" id="seekers">
-    <div class="split">
-      <div>
-        <span class="lbl">002 — För jobbsökare</span>
-        <h2>Hitta jobbet<br>du faktiskt<br>vill ha</h2>
-        <p class="body">Sluta skicka ansökningar i tomma intet. Med Parium swiper du på relevanta jobb — och arbetsgivarna hör av sig till dig.</p>
-        <div class="btn-row" style="opacity:0;transform:translateY(20px)">
-          <a href="#" class="btn-p">Kom igång idag</a>
-        </div>
-      </div>
-      <div class="fcard">
-        <div class="price-big">29</div>
-        <p class="price-per">kronor / månad</p>
-        <ul class="flist">
-          <li>Obegränsad access till alla jobbannonser</li>
-          <li>Swipe-gränssnitt — snabbt och intuitivt</li>
-          <li>Direktchatt med arbetsgivare</li>
-          <li>Inbyggd mötesbookning</li>
-          <li>Matchningspoäng baserat på din profil</li>
-          <li>Push-notiser vid nya matcher</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- EMPLOYERS -->
-  <div class="sec" id="employers">
-    <div class="split">
-      <div class="fcard from-left">
-        <ul class="flist" style="margin-top:0">
-          <li>Publicera jobbannonser enkelt</li>
-          <li>Se kandidater som matchat ditt jobb</li>
-          <li>Direktkommunikation utan mellanhänder</li>
-          <li>Schemalägg intervjuer direkt i appen</li>
-          <li>Kandidatöversikt med kompetensfilter</li>
-          <li>Rekryteringsanalys och statistik</li>
-        </ul>
-      </div>
-      <div>
-        <span class="lbl">003 — För arbetsgivare</span>
-        <h2>Hitta din<br>nästa<br>stjärna</h2>
-        <p class="body">Publicera jobb, bläddra bland kvalificerade kandidater och ta kontakt direkt. Utan mellanhand, utan friktion.</p>
-        <div class="btn-row" style="opacity:0;transform:translateY(20px)">
-          <a href="#" class="btn-p">Publicera ett jobb</a>
-          <a href="#" class="btn-g">Läs mer →</a>
-        </div>
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <h4>Starta dialogen</h4>
+        <p>Matcha med arbetsgivaren och börja chatta direkt. Boka möte när ni är redo.</p>
       </div>
     </div>
   </div>
 
   <!-- STATS -->
-  <div class="stats-wrap">
-    <span class="lbl">004 — Parium i siffror</span>
-    <div class="stats-grid">
-      <div class="stat">
-        <div class="stat-n"><span class="cnt" data-t="12000">0</span>+</div>
-        <div class="stat-l">Aktiva jobbsökare</div>
-      </div>
-      <div class="stat">
-        <div class="stat-n"><span class="cnt" data-t="850">0</span>+</div>
-        <div class="stat-l">Arbetsgivare</div>
-      </div>
-      <div class="stat">
-        <div class="stat-n"><span class="cnt" data-t="94">0</span>%</div>
-        <div class="stat-l">Matchningsträffsäkerhet</div>
-      </div>
-      <div class="stat">
-        <div class="stat-n"><span class="cnt" data-t="29">0</span> kr</div>
-        <div class="stat-l">Per månad</div>
-      </div>
+  <div class="section-stats">
+    <div class="stat reveal" style="text-align:center">
+      <div class="stat-num" data-target="29">0</div>
+      <div class="stat-label">kr / månad</div>
+    </div>
+    <div class="stat reveal" style="text-align:center">
+      <div class="stat-num" data-target="3" data-suffix=" min">0</div>
+      <div class="stat-label">för att komma igång</div>
+    </div>
+    <div class="stat reveal" style="text-align:center">
+      <div class="stat-num" data-target="100" data-suffix="%">0</div>
+      <div class="stat-label">fokus på matchning</div>
     </div>
   </div>
 
   <!-- CTA -->
-  <div class="cta-sec" id="cta">
-    <span class="lbl" style="display:block;text-align:center">005 — Kom igång</span>
-    <h2>Redo att hitta<br>din matchning?</h2>
-    <p class="body">Gå med tusentals jobbsökare och arbetsgivare som redan använder Parium. Det tar under 5 minuter.</p>
-    <div class="btn-row">
-      <a href="#" class="btn-p">Börja söka jobb — 29 kr/mån</a>
-      <a href="#" class="btn-g">Publicera som arbetsgivare</a>
+  <div class="section-cta" id="kom-igang">
+    <p class="label reveal">Redo att börja?</p>
+    <h2 class="reveal">Testa Parium<br>idag.</h2>
+    <div class="cta-btns reveal">
+      <a href="#" class="btn-large btn-blue">Jobbsökare — 29 kr/mån</a>
+      <a href="#" class="btn-large btn-outline">Arbetsgivare — Kontakta oss</a>
     </div>
   </div>
 
+  <!-- FOOTER -->
   <footer>
-    <a href="#" class="logo">
-      <div class="logo-rings"></div>
-      <span class="logo-name" style="font-size:1rem">Parium</span>
-    </a>
-    <p>© 2025 Parium AB. Alla rättigheter förbehållna.</p>
-    <p>parium.se</p>
+    <img src="logo.png" alt="Parium">
+    <p>© 2026 Parium. Alla rättigheter förbehållna.</p>
+    <p style="font-size:0.75rem; color:var(--muted);">parium.se</p>
   </footer>
 
-</div>
+</main>
 
-<!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 gsap.registerPlugin(ScrollTrigger);
 
-// ── LOADER ──────────────────────────────────────────────
-const lbar = document.getElementById('lbar');
-const lpct = document.getElementById('lpct');
-let p = 0;
-const lt = setInterval(() => {
-  p = Math.min(100, p + Math.random() * 16);
-  lbar.style.width = p + '%';
-  lpct.textContent = Math.floor(p) + '%';
-  if (p >= 100) { clearInterval(lt); setTimeout(afterLoad, 250); }
-}, 75);
+// ── CANVAS SETUP ──
+const canvas = document.getElementById('hero-canvas');
+const ctx    = canvas.getContext('2d');
 
-// ── THREE.JS ─────────────────────────────────────────────
-const canvas = document.getElementById('c3d');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
-
-const scene = new THREE.Scene();
-const cam = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 100);
-cam.position.set(0, 0, 7);
-
-// Lights
-scene.add(new THREE.AmbientLight(0x091624, 5));
-const kl = new THREE.PointLight(0x4AAEE8, 70, 28);
-kl.position.set(4, 4, 4); scene.add(kl);
-const fl = new THREE.PointLight(0x2274C8, 55, 28);
-fl.position.set(-4, -3, 2); scene.add(fl);
-const rl = new THREE.DirectionalLight(0xffffff, 0.4);
-rl.position.set(0, 6, -4); scene.add(rl);
-
-// Ring group
-const grp = new THREE.Group();
-scene.add(grp);
-
-const rGeo = new THREE.TorusGeometry(1.5, 0.095, 32, 200);
-const m1 = new THREE.MeshPhysicalMaterial({
-  color: 0x4AAEE8, metalness: 0.5, roughness: 0.05,
-  transparent: true, opacity: 0,
-  emissive: 0x1a4a7a, emissiveIntensity: 0.35,
-});
-const m2 = new THREE.MeshPhysicalMaterial({
-  color: 0x2274C8, metalness: 0.5, roughness: 0.05,
-  transparent: true, opacity: 0,
-  emissive: 0x0a2240, emissiveIntensity: 0.35,
-});
-
-const r1 = new THREE.Mesh(rGeo, m1);
-r1.position.x = -0.55;
-r1.rotation.x = Math.PI * 0.35;
-r1.rotation.z = Math.PI * 0.08;
-r1.scale.setScalar(0.3);
-
-const r2 = new THREE.Mesh(rGeo, m2);
-r2.position.x = 0.55;
-r2.rotation.x = Math.PI * 0.35;
-r2.rotation.y = Math.PI * 0.5;
-r2.rotation.z = -Math.PI * 0.08;
-r2.scale.setScalar(0.3);
-
-grp.add(r1, r2);
-
-// Particles
-const pc = 380, pp = new Float32Array(pc * 3);
-for (let i = 0; i < pc; i++) {
-  pp[i*3]   = (Math.random() - 0.5) * 26;
-  pp[i*3+1] = (Math.random() - 0.5) * 26;
-  pp[i*3+2] = (Math.random() - 0.5) * 12 - 3;
+function resizeCanvas() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
-const pGeo = new THREE.BufferGeometry();
-pGeo.setAttribute('position', new THREE.BufferAttribute(pp, 3));
-scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({
-  color: 0x4AAEE8, size: 0.033, transparent: true, opacity: 0.28, sizeAttenuation: true,
-})));
-
-// Mouse
-let mx = 0, my = 0;
-document.addEventListener('mousemove', e => {
-  mx = (e.clientX / innerWidth - 0.5) * 2;
-  my = -(e.clientY / innerHeight - 0.5) * 2;
-});
-
-// Scroll progress
-let sp = 0;
-ScrollTrigger.create({
-  trigger: '#content', start: 'top top', end: 'bottom bottom',
-  onUpdate: s => { sp = s.progress; }
-});
-
-// Render loop
-const clk = new THREE.Clock();
-(function loop() {
-  requestAnimationFrame(loop);
-  const t = clk.getElapsedTime();
-  r1.rotation.y += 0.004;
-  r2.rotation.y -= 0.0038;
-  grp.position.y = Math.sin(t * 0.38) * 0.09;
-  grp.rotation.y += (mx * 0.22 - grp.rotation.y) * 0.04;
-  grp.rotation.x += (my * 0.14 - grp.rotation.x) * 0.04;
-  grp.position.z = -sp * 2.5;
-  renderer.render(scene, cam);
-})();
-
+resizeCanvas();
 window.addEventListener('resize', () => {
-  cam.aspect = innerWidth / innerHeight;
-  cam.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  resizeCanvas();
+  if (frames[currentFrame] && frames[currentFrame].complete) drawFrame(frames[currentFrame]);
 });
 
-// ── LENIS ────────────────────────────────────────────────
+function drawFrame(img) {
+  const vw = canvas.width, vh = canvas.height;
+  const iw = img.naturalWidth  || 1928;
+  const ih = img.naturalHeight || 1072;
+  const scale = Math.max(vw / iw, vh / ih);
+  const sw = iw * scale, sh = ih * scale;
+  const sx = (vw - sw) / 2,  sy = (vh - sh) / 2;
+  ctx.clearRect(0, 0, vw, vh);
+  ctx.drawImage(img, sx, sy, sw, sh);
+}
+
+// ── FRAME PRELOAD ──
+const frameCount = 169;
+const frames = new Array(frameCount);
+let loadedCount = 0;
+let currentFrame = 0;
+const bar = document.getElementById('loader-bar');
+const pct = document.getElementById('loader-pct');
+
+function preloadFrames() {
+  return new Promise(resolve => {
+    for (let i = 0; i < frameCount; i++) {
+      const img = new Image();
+      const num  = String(i + 1).padStart(4, '0');
+      img.src = `frames/frame-${num}.jpg`;
+      img.onload = () => {
+        loadedCount++;
+        const p = Math.round((loadedCount / frameCount) * 100);
+        bar.style.width = p + '%';
+        pct.textContent = p + '%';
+        if (i === 0) drawFrame(img);
+        if (loadedCount === frameCount) resolve();
+      };
+      img.onerror = () => { loadedCount++; if (loadedCount === frameCount) resolve(); };
+      frames[i] = img;
+    }
+  });
+}
+
+// ── LENIS ──
 const lenis = new Lenis({
   duration: 1.2,
   easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-  smoothWheel: true,
+  smoothWheel: true
 });
 lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add(time => lenis.raf(time * 1000));
 gsap.ticker.lagSmoothing(0);
 
-// ── CURSOR ───────────────────────────────────────────────
-const cdot = document.getElementById('cdot');
-const cring = document.getElementById('cring');
-document.addEventListener('mousemove', e => {
-  gsap.to(cdot,  { x: e.clientX, y: e.clientY, duration: 0.08 });
-  gsap.to(cring, { x: e.clientX, y: e.clientY, duration: 0.2, ease: 'power2.out' });
-});
-document.querySelectorAll('a, button').forEach(el => {
-  el.addEventListener('mouseenter', () => gsap.to(cring, { scale: 2.2, opacity: 0.5, duration: 0.3 }));
-  el.addEventListener('mouseleave', () => gsap.to(cring, { scale: 1,   opacity: 1,   duration: 0.3 }));
-});
+// ── SCROLL VIDEO SCRUB ──
+ScrollTrigger.create({
+  trigger: '#video-wrap',
+  start: 'top top',
+  end: 'bottom bottom',
+  scrub: true,
+  onUpdate(self) {
+    currentFrame = Math.min(frameCount - 1, Math.floor(self.progress * frameCount));
+    if (frames[currentFrame]?.complete) drawFrame(frames[currentFrame]);
 
-// ── AFTER LOADER ─────────────────────────────────────────
-function afterLoad() {
-  gsap.to('#loader', {
-    opacity: 0, duration: 0.65, ease: 'power2.inOut',
-    onComplete: () => document.getElementById('loader').remove(),
-  });
-
-  // Ring entrance
-  gsap.to([m1, m2], { opacity: 0.95, duration: 1.6, delay: 0.2, ease: 'power2.out' });
-  gsap.to(r1.scale, { x:1, y:1, z:1, duration: 2.1, delay: 0.15, ease: 'elastic.out(1, 0.55)' });
-  gsap.to(r2.scale, { x:1, y:1, z:1, duration: 2.1, delay: 0.35, ease: 'elastic.out(1, 0.55)' });
-
-  // Hero text
-  gsap.timeline({ delay: 0.25 })
-    .to('.hero-label', { opacity:1, y:0, duration:0.85, ease:'power3.out' })
-    .to('h1',          { opacity:1, y:0, duration:1.1,  ease:'power3.out' }, '-=0.55')
-    .to('.hero-sub',   { opacity:1, y:0, duration:0.9,  ease:'power3.out' }, '-=0.65')
-    .to('#hero .btn-row', { opacity:1, y:0, duration:0.8, ease:'power3.out' }, '-=0.55')
-    .to('.scroll-cue', { opacity:1,       duration:0.6 }, '-=0.2');
-
-  // Scroll reveals
-  function reveal(selector, vars, trigger) {
-    gsap.to(selector, {
-      ...vars, duration: 0.9, ease: 'power3.out',
-      scrollTrigger: { trigger: trigger || selector, start: 'top 84%', toggleActions: 'play none none none' },
-    });
+    // Show overlay text near end of video
+    const endText = document.getElementById('video-end-text');
+    if (self.progress > 0.75) {
+      gsap.to(endText, { opacity: 1, y: 0, duration: 0.4 });
+    } else {
+      gsap.to(endText, { opacity: 0, y: 20, duration: 0.3 });
+    }
   }
+});
 
-  // How it works
-  reveal('#hiw h2',   { opacity:1, y:0 });
-  reveal('.step',     { opacity:1, y:0, stagger:0.12 }, '#hiw .steps-grid');
-
-  // Seekers
-  gsap.set('#seekers h2',       { x:-55, opacity:0 });
-  gsap.set('#seekers .body',    { opacity:0, y:20 });
-  gsap.set('#seekers .btn-row', { opacity:0, y:20 });
-  reveal('#seekers h2',         { x:0, opacity:1 });
-  reveal('#seekers .body',      { opacity:1, y:0 });
-  reveal('#seekers .btn-row',   { opacity:1, y:0 });
-  gsap.to('#seekers .fcard',    {
-    opacity:1, x:0, duration:0.95, ease:'power3.out',
-    scrollTrigger:{ trigger:'#seekers .fcard', start:'top 84%', toggleActions:'play none none none' },
-  });
-
-  // Employers
-  gsap.set('#employers h2',       { x:55, opacity:0 });
-  gsap.set('#employers .body',    { opacity:0, y:20 });
-  gsap.set('#employers .btn-row', { opacity:0, y:20 });
-  reveal('#employers h2',         { x:0, opacity:1 });
-  reveal('#employers .body',      { opacity:1, y:0 });
-  reveal('#employers .btn-row',   { opacity:1, y:0 });
-  gsap.to('#employers .fcard',    {
-    opacity:1, x:0, duration:0.95, ease:'power3.out',
-    scrollTrigger:{ trigger:'#employers .fcard', start:'top 84%', toggleActions:'play none none none' },
-  });
-
-  // Stats
-  reveal('.stat', { opacity:1, y:0, stagger:0.1 }, '.stats-grid');
-
-  // CTA
-  gsap.set('.cta-sec h2',     { scale:0.9, opacity:0 });
-  gsap.set('.cta-sec .body',  { opacity:0, y:20 });
-  gsap.to('.cta-sec h2',      {
-    scale:1, opacity:1, duration:1, ease:'power3.out',
-    scrollTrigger:{ trigger:'.cta-sec h2', start:'top 84%', toggleActions:'play none none none' },
-  });
-  reveal('.cta-sec .body',     { opacity:1, y:0 });
-  reveal('.cta-sec .btn-row',  { opacity:1, y:0 });
-
-  // Counting numbers
-  document.querySelectorAll('.cnt').forEach(el => {
-    const tgt = parseInt(el.dataset.t);
-    ScrollTrigger.create({
-      trigger: el, start: 'top 80%', once: true,
-      onEnter: () => {
-        gsap.to({ v:0 }, {
-          v: tgt, duration: 2, ease: 'power2.out',
-          onUpdate: function() { el.textContent = Math.round(this.targets()[0].v).toLocaleString('sv-SE'); },
-        });
-      },
-    });
+// ── SCROLL HINT (show after loader, hide on scroll) ──
+function showScrollHint() {
+  gsap.to('#scroll-hint', { opacity: 1, duration: 0.8, delay: 0.5 });
+  lenis.once('scroll', () => {
+    gsap.to('#scroll-hint', { opacity: 0, duration: 0.4 });
   });
 }
+
+// ── REVEAL ANIMATIONS ──
+document.querySelectorAll('.reveal').forEach(el => {
+  ScrollTrigger.create({
+    trigger: el,
+    start: 'top 88%',
+    onEnter: () => gsap.to(el, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' })
+  });
+});
+
+// ── COUNTING STATS ──
+document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+  const target  = parseInt(el.dataset.target);
+  const suffix  = el.dataset.suffix || '';
+  ScrollTrigger.create({
+    trigger: el,
+    start: 'top 85%',
+    onEnter: () => {
+      gsap.to({ val: 0 }, {
+        val: target,
+        duration: 1.8,
+        ease: 'power2.out',
+        onUpdate() { el.textContent = Math.round(this.targets()[0].val) + suffix; }
+      });
+    }
+  });
+});
+
+// ── LOADER ──
+preloadFrames().then(() => {
+  gsap.to('#loader', {
+    opacity: 0, duration: 0.6, delay: 0.2,
+    onComplete: () => {
+      document.getElementById('loader').remove();
+      showScrollHint();
+    }
+  });
+});
 </script>
 </body>
 </html>
