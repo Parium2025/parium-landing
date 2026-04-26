@@ -151,9 +151,16 @@ function initFrameScroll() {
   });
 }
 
-// ── DARK OVERLAY (stats) ──────────────────────────────────────
+// ── DARK OVERLAY ──────────────────────────────────────────────
+// Stats: 0.91 opacity. CTA: fades to 0.55 so video brand shows subtly.
 function initDarkOverlay() {
-  const ENTER = 0.61, LEAVE = 0.77, FADE = 0.03;
+  const FADE_IN  = 0.59;  // start fade-in
+  const STATS_ON = 0.62;  // full opacity for stats
+  const CTA_IN   = 0.76;  // begin fade to partial for CTA
+  const CTA_MID  = 0.82;  // settle at 0.55 opacity during CTA
+  const END      = 0.96;  // fade out
+  const FADE     = 0.03;
+
   ScrollTrigger.create({
     trigger: scrollCont,
     start:   'top top',
@@ -162,9 +169,19 @@ function initDarkOverlay() {
     onUpdate(self) {
       const p = self.progress;
       let o = 0;
-      if      (p >= ENTER - FADE && p < ENTER) o = (p - (ENTER - FADE)) / FADE;
-      else if (p >= ENTER        && p < LEAVE) o = 0.91;
-      else if (p >= LEAVE        && p < LEAVE + FADE) o = 0.91 * (1 - (p - LEAVE) / FADE);
+      if (p < FADE_IN) {
+        o = 0;
+      } else if (p < STATS_ON) {
+        o = (p - FADE_IN) / (STATS_ON - FADE_IN) * 0.91;
+      } else if (p < CTA_IN) {
+        o = 0.91;
+      } else if (p < CTA_MID) {
+        o = 0.91 - (p - CTA_IN) / (CTA_MID - CTA_IN) * 0.36; // fades to 0.55
+      } else if (p < END) {
+        o = 0.55;
+      } else {
+        o = Math.max(0, 0.55 - (p - END) / FADE * 0.55);
+      }
       darkOverlay.style.opacity = o.toFixed(3);
     }
   });
@@ -291,7 +308,45 @@ function animateHeroIn() {
     .to('.hero-scroll-arrow',{ opacity: 1, duration: 0.5 }, 1.5);
 }
 
+// ── TRANSPARENT LOGO ──────────────────────────────────────────
+// Strip the solid background from logo.png via canvas sampling.
+function makeLogoTransparent() {
+  const logoEls = document.querySelectorAll('.site-logo, .footer-logo');
+  if (!logoEls.length) return;
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    try {
+      const SIZE = 256;
+      const tmp  = document.createElement('canvas');
+      tmp.width  = tmp.height = SIZE;
+      const c    = tmp.getContext('2d');
+      c.drawImage(img, 0, 0, SIZE, SIZE);
+      const d    = c.getImageData(0, 0, SIZE, SIZE);
+
+      // Sample background from corners
+      const bgR = Math.round((d.data[0] + d.data[(SIZE-1)*4]) / 2);
+      const bgG = Math.round((d.data[1] + d.data[(SIZE-1)*4+1]) / 2);
+      const bgB = Math.round((d.data[2] + d.data[(SIZE-1)*4+2]) / 2);
+
+      // Make bg-matching pixels transparent
+      for (let i = 0; i < d.data.length; i += 4) {
+        const diff = Math.abs(d.data[i]-bgR) + Math.abs(d.data[i+1]-bgG) + Math.abs(d.data[i+2]-bgB);
+        if (diff < 60) d.data[i+3] = 0;
+      }
+      c.putImageData(d, 0, 0);
+
+      const url = tmp.toDataURL('image/png');
+      logoEls.forEach(el => { el.src = url; el.style.mixBlendMode = ''; el.style.filter = ''; });
+    } catch { /* CORS or tainted canvas — leave as-is */ }
+  };
+  img.src = 'logo.png?' + Date.now(); // cache-bust for CORS
+}
+
 // ── BOOT ──────────────────────────────────────────────────────
+makeLogoTransparent();
+
 preloadFrames().then(() => {
   gsap.to(loader, {
     opacity: 0, duration: 0.55, delay: 0.15,
