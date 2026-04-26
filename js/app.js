@@ -2,7 +2,7 @@
 
 // ── CONSTANTS ───────────────────────────────────────────────
 const FRAME_COUNT  = 169;
-const FRAME_SPEED  = 2.1;   // finishes frames by ~48% scroll
+const FRAME_SPEED  = 1.3;   // completes by ~77% scroll — keeps street scene during text
 const IMAGE_SCALE  = 0.90;  // padded cover (0.85-0.92)
 
 // ── DOM ─────────────────────────────────────────────────────
