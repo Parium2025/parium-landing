@@ -3,149 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Parium — Framtiden börjar med ett swipe</title>
+<title>Parium — Hitta rätt jobb. Rätt kandidat.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
-<link href="https://db.onlinewebfonts.com/c/440b53b1a1c65037f944ff19259d8014?family=Nokia+Cellphone+FC+Small" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <!-- LOADER -->
 <div id="loader">
-  <img src="logo.png" alt="Parium" class="loader-brand">
+  <img src="logo.png" alt="Parium" class="loader-logo">
   <div class="loader-track"><div id="loader-bar"></div></div>
-  <div id="loader-percent">0%</div>
+  <span id="loader-pct">0%</span>
 </div>
+
+<!-- THREE.JS CANVAS (fixed, behind everything) -->
+<canvas id="canvas-3d"></canvas>
 
 <!-- FIXED HEADER -->
 <header class="site-header">
   <img src="logo.png" alt="Parium" class="site-logo">
+  <nav class="site-nav">
+    <a href="#">Funktioner</a>
+    <a href="#">Hur det fungerar</a>
+  </nav>
+  <a href="#" class="btn-outline">Logga in</a>
 </header>
 
-<!-- HERO (100vh standalone) -->
-<section class="hero-standalone">
-  <!-- Video background -->
-  <video class="hero-video" autoplay loop muted playsinline>
-    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260427_054418_a6d194f0-ac86-4df9-abe5-ded73e596d7c.mp4" type="video/mp4">
-  </video>
-  <div class="hero-video-overlay"></div>
+<!-- SCROLL WRAP — provides scroll distance, sections are absolute inside -->
+<div id="scroll-wrap">
 
-  <!-- Ambient glow -->
-  <div class="hero-glow"></div>
+  <!-- HERO -->
+  <section class="section hero" data-enter="0" data-leave="13">
+    <div class="section-inner centered">
+      <span class="label">REKRYTERING SOM KÄNNS ENKEL</span>
+      <h1>
+        <span class="line">Hitta rätt</span><br>
+        <span class="line">jobb. <em>Rätt</em></span><br>
+        <span class="line"><em>kandidat.</em></span>
+      </h1>
+      <p class="hero-sub">Parium samlar jobbsökare och arbetsgivare i ett modernt flöde — matchningar, dialog och nästa steg utan krångel.</p>
+      <div class="cta-group">
+        <a href="#" class="btn-primary">Kom igång gratis <span class="arr">→</span></a>
+        <a href="#" class="btn-ghost">Se hur det fungerar</a>
+      </div>
+    </div>
+    <div class="scroll-cue">
+      <div class="scroll-line-anim"></div>
+    </div>
+  </section>
 
-  <!-- Corner bubbles -->
-  <div class="hero-bubbles">
-    <div class="bubble" style="--x:6vw;--y:14vh;--s:52px;--o:0.16;--d:0s;--drift:-10px"></div>
-    <div class="bubble" style="--x:2vw;--y:26vh;--s:22px;--o:0.11;--d:1.4s;--drift:-7px"></div>
-    <div class="bubble" style="--x:13vw;--y:7vh;--s:14px;--o:0.22;--d:0.6s;--drift:-12px"></div>
-    <div class="bubble" style="--x:9vw;--y:34vh;--s:8px;--o:0.14;--d:2.1s;--drift:-6px"></div>
+  <!-- SECTION 1 -->
+  <section class="section feature align-left" data-enter="15" data-leave="30" data-animation="slide-left">
+    <div class="section-inner">
+      <span class="label">001 / Ny era</span>
+      <h2>Den nya<br>arbets&shy;marknaden</h2>
+      <p>Traditionell rekrytering är ineffektiv och opersonlig. Parium förändrar allt — med teknik som sätter matchningen i centrum.</p>
+    </div>
+  </section>
 
-    <div class="bubble" style="--x:86vw;--y:9vh;--s:60px;--o:0.13;--d:0.8s;--drift:-14px"></div>
-    <div class="bubble" style="--x:93vw;--y:22vh;--s:24px;--o:0.19;--d:2s;--drift:-8px"></div>
-    <div class="bubble" style="--x:80vw;--y:4vh;--s:16px;--o:0.24;--d:0.3s;--drift:-11px"></div>
-    <div class="bubble" style="--x:89vw;--y:30vh;--s:10px;--o:0.15;--d:1.7s;--drift:-5px"></div>
+  <!-- SECTION 2 -->
+  <section class="section feature align-right" data-enter="34" data-leave="49" data-animation="slide-right">
+    <div class="section-inner">
+      <span class="label">002 / Arbetsgivare</span>
+      <h2>Lägg ut<br>jobbet på<br>sekunder</h2>
+      <p>Skapa en jobbannons på under en minut. Nå tusentals kvalificerade kandidater direkt i deras flöde.</p>
+    </div>
+  </section>
 
-    <div class="bubble" style="--x:4vw;--y:74vh;--s:44px;--o:0.15;--d:1.1s;--drift:10px"></div>
-    <div class="bubble" style="--x:12vw;--y:85vh;--s:20px;--o:0.21;--d:2.3s;--drift:7px"></div>
-    <div class="bubble" style="--x:2vw;--y:90vh;--s:12px;--o:0.13;--d:0.4s;--drift:9px"></div>
+  <!-- SECTION 3 -->
+  <section class="section feature align-left" data-enter="52" data-leave="66" data-animation="scale-up">
+    <div class="section-inner">
+      <span class="label">003 / Jobbsökare</span>
+      <h2>Hitta<br>drömjobbet</h2>
+      <p>Bläddra bland personliga jobberbjudanden. Swipa höger när du är intresserad — enkelt som det.</p>
+    </div>
+  </section>
 
-    <div class="bubble" style="--x:88vw;--y:78vh;--s:56px;--o:0.14;--d:1.6s;--drift:12px"></div>
-    <div class="bubble" style="--x:80vw;--y:88vh;--s:26px;--o:0.20;--d:0.9s;--drift:8px"></div>
-    <div class="bubble" style="--x:94vw;--y:70vh;--s:14px;--o:0.17;--d:2.7s;--drift:10px"></div>
-    <div class="bubble" style="--x:76vw;--y:93vh;--s:9px;--o:0.13;--d:1.3s;--drift:6px"></div>
+  <!-- MARQUEE -->
+  <div class="marquee-wrap" id="marquee-mid">
+    <div class="marquee-track">
+      <span class="marquee-txt">PARIUM &nbsp;·&nbsp; REKRYTERING PÅ 60 SEKUNDER &nbsp;·&nbsp; MATCHA DIREKT &nbsp;·&nbsp; TUSENTALS JOBB &nbsp;·&nbsp; </span>
+      <span class="marquee-txt" aria-hidden="true">PARIUM &nbsp;·&nbsp; REKRYTERING PÅ 60 SEKUNDER &nbsp;·&nbsp; MATCHA DIREKT &nbsp;·&nbsp; TUSENTALS JOBB &nbsp;·&nbsp; </span>
+    </div>
   </div>
 
-  <!-- Typing messages overlay — positioned on phone screen in video -->
-  <div class="typing-overlay">
-    <span id="typing-text" class="typing-text"></span><span class="typing-cursor"></span>
-  </div>
-
-  <div class="hero-inner">
-    <div class="hero-words" aria-label="Framtiden börjar med ett swipe">
-      <div class="word-line"><span class="word">Framtiden</span></div>
-      <div class="word-line"><span class="word">börjar med</span></div>
-      <div class="word-line"><span class="word">ett <em>swipe</em></span></div>
-    </div>
-    <p class="hero-tagline">Arbetsförmedlingens räckvidd. Tinders enkelhet.</p>
-    <div class="hero-scroll-arrow">
-      <svg width="24" height="40" viewBox="0 0 24 40" fill="none">
-        <line x1="12" y1="0" x2="12" y2="32" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
-        <path d="M4 24 L12 32 L20 24" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none"/>
-      </svg>
-    </div>
-  </div>
-</section>
-
-<!-- CANVAS (full-viewport, fixed) -->
-<div class="canvas-wrap" id="canvas-wrap">
-  <canvas id="canvas"></canvas>
-</div>
-
-<!-- DARK OVERLAY (for stats section) -->
-<div id="dark-overlay"></div>
-
-<!-- MARQUEE 1 (early) -->
-<div class="marquee-wrap" id="marquee-1" data-scroll-speed="-20">
-  <div class="marquee-text">PARIUM · FRAMTIDEN BÖRJAR MED ETT SWIPE · PARIUM · FRAMTIDEN BÖRJAR MED ETT SWIPE ·</div>
-</div>
-
-<!-- MARQUEE 2 (late) -->
-<div class="marquee-wrap" id="marquee-2" data-scroll-speed="-25">
-  <div class="marquee-text">MATCHA DIREKT · TUSENTALS JOBB · MATCHA DIREKT · TUSENTALS JOBB ·</div>
-</div>
-
-<!-- SCROLL CONTAINER (provides scroll height, sections are fixed) -->
-<div id="scroll-container">
-
-  <!-- Section 1: Intro -->
-  <section class="scroll-section align-left" data-enter="18" data-leave="30" data-animation="slide-left">
-    <span class="section-label">001 / Ny era</span>
-    <h2 class="section-heading">Den nya<br>arbets&shy;mark&shy;naden</h2>
-    <p class="section-body">Traditionell rekrytering är ineffektiv och opersonlig. Parium förändrar allt — med teknik som sätter matchningen i centrum.</p>
-  </section>
-
-  <!-- Section 2: Arbetsgivare -->
-  <section class="scroll-section align-right" data-enter="33" data-leave="45" data-animation="slide-right">
-    <span class="section-label">002 / Arbetsgivare</span>
-    <h2 class="section-heading">Lägg ut<br>jobbet på<br>sekunder</h2>
-    <p class="section-body">Skapa en jobbannons på under en minut. Nå tusentals kvalificerade kandidater direkt i deras flöde — utan mellanhänder.</p>
-  </section>
-
-  <!-- Section 3: Jobbsökare -->
-  <section class="scroll-section align-left" data-enter="48" data-leave="60" data-animation="rotate-in">
-    <span class="section-label">003 / Jobbsökare</span>
-    <h2 class="section-heading">Hitta<br>drömjobbet</h2>
-    <p class="section-body">Bläddra bland personliga jobberbjudanden. Swipa höger när du är intresserad — enkelt som det.</p>
-  </section>
-
-  <!-- Section 4: Stats (with dark overlay) -->
-  <section class="scroll-section section-stats" data-enter="63" data-leave="75" data-animation="stagger-up">
-    <div class="stat">
-      <div class="stat-row">
-        <span class="stat-number" data-value="5000">0</span><span class="stat-suffix">+</span>
+  <!-- STATS -->
+  <section class="section section-stats" data-enter="68" data-leave="81" data-animation="stagger-up">
+    <div class="section-inner centered">
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-val"><span class="stat-n" data-target="5000">0</span><span class="stat-suf">+</span></div>
+          <div class="stat-lbl">Aktiva jobb</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val"><span class="stat-n" data-target="1200">0</span><span class="stat-suf">+</span></div>
+          <div class="stat-lbl">Anslutna företag</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val"><span class="stat-n" data-target="89">0</span><span class="stat-suf">%</span></div>
+          <div class="stat-lbl">Matchningsgrad</div>
+        </div>
       </div>
-      <span class="stat-label">Aktiva jobb</span>
-    </div>
-    <div class="stat">
-      <div class="stat-row">
-        <span class="stat-number" data-value="1200">0</span><span class="stat-suffix">+</span>
-      </div>
-      <span class="stat-label">Anslutna företag</span>
-    </div>
-    <div class="stat">
-      <div class="stat-row">
-        <span class="stat-number" data-value="89">0</span><span class="stat-suffix">%</span>
-      </div>
-      <span class="stat-label">Matchningsgrad</span>
     </div>
   </section>
 
+  <!-- CTA -->
+  <section class="section section-cta" data-enter="83" data-leave="97" data-animation="fade-up">
+    <div class="section-inner centered">
+      <span class="label">Redo att börja?</span>
+      <h2>Rekrytering<br>på 60 sekunder</h2>
+      <p>Kom igång idag — helt gratis. Inget kreditkort krävs.</p>
+      <a href="#" class="btn-primary large">Skapa konto <span class="arr">→</span></a>
+    </div>
+  </section>
 
 </div>
 
-<!-- FOOTER (below scroll-container) -->
+<!-- FOOTER -->
 <footer class="site-footer">
   <img src="logo.png" alt="Parium" class="footer-logo">
   <span class="footer-copy">© 2026 Parium — parium.se</span>
@@ -154,6 +130,7 @@
 <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
