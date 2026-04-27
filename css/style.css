@@ -66,7 +66,7 @@ body {
   position: fixed; inset: 0; z-index: 200;
   background: #000e22;
   display: flex; align-items: flex-start; justify-content: center;
-  padding-top: clamp(10vh, 14vh, 18vh);
+  padding-top: clamp(5vh, 7vh, 9vh);
   pointer-events: none;
   overflow: hidden;
 }
@@ -80,7 +80,7 @@ body {
 }
 .hero-video-overlay {
   position: absolute; inset: 0;
-  background: rgba(0, 9, 20, 0.38);
+  background: rgba(0, 9, 20, 0.52);
   z-index: 2;
 }
 
@@ -161,7 +161,7 @@ body {
 .word {
   display: inline-block;
   font-family: var(--fd); font-weight: 800;
-  font-size: clamp(3.5rem, 10vw, 9rem);
+  font-size: clamp(2rem, 4vw, 3.8rem);
   letter-spacing: -0.04em; line-height: 1.0;
   transform: translateY(105%);
 }
