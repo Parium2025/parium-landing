@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link href="https://db.onlinewebfonts.com/c/440b53b1a1c65037f944ff19259d8014?family=Nokia+Cellphone+FC+Small" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -25,6 +26,12 @@
 
 <!-- HERO (100vh standalone) -->
 <section class="hero-standalone">
+  <!-- Video background -->
+  <video class="hero-video" autoplay loop muted playsinline>
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260427_054418_a6d194f0-ac86-4df9-abe5-ded73e596d7c.mp4" type="video/mp4">
+  </video>
+  <div class="hero-video-overlay"></div>
+
   <!-- Ambient glow -->
   <div class="hero-glow"></div>
 
@@ -48,6 +55,11 @@
     <div class="bubble" style="--x:80vw;--y:88vh;--s:26px;--o:0.20;--d:0.9s;--drift:8px"></div>
     <div class="bubble" style="--x:94vw;--y:70vh;--s:14px;--o:0.17;--d:2.7s;--drift:10px"></div>
     <div class="bubble" style="--x:76vw;--y:93vh;--s:9px;--o:0.13;--d:1.3s;--drift:6px"></div>
+  </div>
+
+  <!-- Typing messages overlay — positioned on phone screen in video -->
+  <div class="typing-overlay">
+    <span id="typing-text" class="typing-text"></span><span class="typing-cursor"></span>
   </div>
 
   <div class="hero-inner">

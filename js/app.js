@@ -344,6 +344,42 @@ function makeLogoTransparent() {
   img.src = 'logo.png?' + Date.now(); // cache-bust for CORS
 }
 
+// ── TYPING ANIMATION ──────────────────────────────────────────
+function initTypingAnimation() {
+  const messages = ["Are you here?", "Yes, I am.", "Speak soon."];
+  const textEl = document.getElementById('typing-text');
+  if (!textEl) return;
+
+  let msgIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+
+  function tick() {
+    const current = messages[msgIndex];
+    if (!isDeleting) {
+      textEl.textContent = current.slice(0, charIndex + 1);
+      charIndex++;
+      if (charIndex === current.length) {
+        isDeleting = true;
+        setTimeout(tick, 2000);
+        return;
+      }
+      setTimeout(tick, 100);
+    } else {
+      textEl.textContent = current.slice(0, charIndex - 1);
+      charIndex--;
+      if (charIndex === 0) {
+        isDeleting = false;
+        msgIndex = (msgIndex + 1) % messages.length;
+        setTimeout(tick, 200);
+        return;
+      }
+      setTimeout(tick, 50);
+    }
+  }
+  setTimeout(tick, 1800);
+}
+
 // ── BOOT ──────────────────────────────────────────────────────
 makeLogoTransparent();
 
@@ -359,6 +395,7 @@ preloadFrames().then(() => {
       initSections();
       initCounters();
       animateHeroIn();
+      initTypingAnimation();
     }
   });
 });
