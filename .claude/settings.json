@@ -2,24 +2,17 @@
   "mcpServers": {
     "trigger": {
       "command": "npx",
-      "args": ["trigger.dev@4.4.0", "mcp"]
+      "args": [
+        "trigger.dev@4.4.0",
+        "mcp"
+      ]
     }
   },
   "permissions": {
     "allow": [
-      "Bash(mkdir *)",
-      "Bash(cp *)",
-      "Bash(mv *)",
-      "Bash(rm *)",
-      "Bash(ls *)",
-      "Bash(npx serve *)",
-      "Bash(npx trigger.dev*)",
-      "Bash(python -m http.server *)",
-      "Bash(ffprobe *)",
-      "Bash(ffmpeg *)",
-      "Bash(node serve.mjs*)",
-      "Bash(node screenshot.mjs*)",
-      "Bash(npm install*)"
+      "Bash(*)",
+      "Write(*)",
+      "Edit(*)"
     ]
   }
 }

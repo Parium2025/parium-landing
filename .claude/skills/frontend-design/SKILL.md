@@ -527,6 +527,17 @@ Before calling done, verify every item:
 
 ---
 
+## Companion Reference Files
+
+Read these when the task requires:
+
+- **[motion.md](motion.md)** — Magnetic elements, View Transitions API, CSS native scroll-driven animations, spring physics, cinematic hero timeline, kinetic text skew, elastic navbar, horizontal scroll sections, GSAP Flip, diagonal grid reveal
+- **[typography.md](typography.md)** — Font pairing library by aesthetic (cinematic/luxury/organic/brutalist/SaaS/retro), CSS type scale, variable font setup, anti-patterns
+- **[color-systems.md](color-systems.md)** — Brand color derivation via HSL, 7 curated palettes, gradient recipes, Three.js color sync, WCAG contrast rules
+- See also **[../3d-website/shaders.md](../3d-website/shaders.md)** for all GLSL shaders
+- See also **[../3d-website/advanced.md](../3d-website/advanced.md)** for GPGPU, InstancedMesh, physics
+
+
 ## Anti-Patterns (Hard Rules)
 
 | NEVER | INSTEAD |

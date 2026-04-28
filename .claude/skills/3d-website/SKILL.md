@@ -1077,6 +1077,20 @@ animate();
 
 ---
 
+## Companion Reference Files
+
+Read these when the task requires advanced techniques:
+
+- **[shaders.md](shaders.md)** — Complete GLSL library: simplex noise 2D/3D, FBM, curl noise, voronoi, displacement shader, holographic/iridescent, chromatic aberration, film grain, raymarching + SDF primitives, morph vertex shader, audio reactive uniforms
+- **[advanced.md](advanced.md)** — GPGPU particles (65k–500k at 60fps), InstancedMesh, MorphTargets, custom ShaderPass, raycasting, OffscreenCanvas + Web Workers, Rapier.js physics, video texture scrubbing, render-to-texture portals, LOD system
+
+Rules:
+- Particles > 10k: always use GPGPU from advanced.md
+- Any noise/shader effect: copy from shaders.md, never write noise from scratch
+- Click/hover on 3D objects: use raycasting from advanced.md
+- Mobile heavy scene: OffscreenCanvas pattern from advanced.md
+
+
 ## Hard Anti-Patterns
 
 | Never | Why |
