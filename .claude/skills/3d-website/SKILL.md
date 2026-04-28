@@ -1081,6 +1081,9 @@ animate();
 
 Read these when the task requires advanced techniques:
 
+- **[r3f.md](r3f.md)** — React Three Fiber + Drei: Canvas setup, hooks, Environment, MeshTransmissionMaterial, Float, Sparkles, GLB loading, ScrollControls, post-processing, custom shaders, HTML overlay. Use when project is React-based.
+- **[webgpu.md](webgpu.md)** — WebGPU renderer, node materials, compute shaders, 1M+ particles, WGSL reference, detection + fallback strategy. Use when targeting modern browsers and need maximum performance.
+- **[fallback.md](fallback.md)** — Progressive enhancement: 4-tier device strategy, static fallback, lite scene, particle count by device, context loss recovery, prefers-reduced-motion, performance budget table, decision tree.
 - **[shaders.md](shaders.md)** — Complete GLSL library: simplex noise 2D/3D, FBM, curl noise, voronoi, displacement shader, holographic/iridescent, chromatic aberration, film grain, raymarching + SDF primitives, morph vertex shader, audio reactive uniforms
 - **[advanced.md](advanced.md)** — GPGPU particles (65k–500k at 60fps), InstancedMesh, MorphTargets, custom ShaderPass, raycasting, OffscreenCanvas + Web Workers, Rapier.js physics, video texture scrubbing, render-to-texture portals, LOD system
 
