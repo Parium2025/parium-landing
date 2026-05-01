@@ -307,6 +307,59 @@ setTimeout(() => {
       loaderEl.remove();
       positionSections();
       updateSections(0);
+      animatePhoneIn();
     }
   });
 }, 1500);
+
+// ── SPLINE PHONE ───────────────────────────────────────────────
+const phoneWrap = document.getElementById('phone-3d');
+
+function animatePhoneIn() {
+  if (!phoneWrap) return;
+
+  // Entrance: flies in from right with spring
+  gsap.fromTo(phoneWrap,
+    { opacity: 0, x: 120, scale: 0.82, rotationY: -18 },
+    {
+      opacity: 1, x: 0, scale: 1, rotationY: 0,
+      duration: 1.5, ease: 'power3.out', delay: 0.2,
+      onComplete: startPhoneFloat
+    }
+  );
+
+  // Hover lift
+  phoneWrap.addEventListener('mouseenter', () => {
+    gsap.to(phoneWrap, { y: -14, duration: 0.5, ease: 'power2.out', overwrite: 'auto' });
+  });
+  phoneWrap.addEventListener('mouseleave', () => {
+    gsap.to(phoneWrap, { y: 0, duration: 0.9, ease: 'elastic.out(1, 0.55)', overwrite: 'auto' });
+  });
+}
+
+let floatTween = null;
+function startPhoneFloat() {
+  if (!phoneWrap) return;
+  floatTween = gsap.to(phoneWrap, {
+    y: -18, duration: 2.8, ease: 'sine.inOut',
+    yoyo: true, repeat: -1
+  });
+}
+
+// Scroll-driven: phone drifts right and fades as hero exits
+ScrollTrigger.create({
+  trigger: '#scroll-wrap',
+  start: 'top top',
+  end: '13% top',
+  scrub: 1.2,
+  onUpdate(self) {
+    if (!phoneWrap) return;
+    const p = self.progress;
+    gsap.set(phoneWrap, {
+      x: p * 80,
+      opacity: 1 - p * 1.4
+    });
+    if (p > 0.05 && floatTween) { floatTween.pause(); }
+    else if (p <= 0.05 && floatTween) { floatTween.resume(); }
+  }
+});
