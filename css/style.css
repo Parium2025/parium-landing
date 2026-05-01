@@ -44,11 +44,25 @@ body {
   color: var(--muted); font-weight: 500;
 }
 
-/* ── THREE.JS CANVAS ──────────────────────────────────────────── */
-#canvas-3d {
-  position: fixed; inset: 0; z-index: 0;
-  pointer-events: none;
-  width: 100vw; height: 100vh;
+/* ── SPLINE PHONE ─────────────────────────────────────────────── */
+#phone-wrap {
+  position: fixed;
+  right: 0; top: 0;
+  width: 56vw; height: 100vh;
+  z-index: 5;
+  opacity: 0;
+  pointer-events: auto;
+  overflow: hidden;
+}
+.phone-inner {
+  width: 100%; height: calc(100% + 52px);
+  margin-top: -26px;
+  position: relative;
+}
+.phone-inner iframe {
+  width: 100%; height: 100%;
+  border: none;
+  display: block;
 }
 
 /* ── HEADER ───────────────────────────────────────────────────── */
@@ -270,57 +284,6 @@ p {
 .footer-logo { height: 26px; opacity: 0.5; }
 .footer-copy { font-size: 0.73rem; color: var(--muted); font-weight: 500; }
 
-/* ── HERO SPLIT ──────────────────────────────────────────────── */
-.hero-split {
-  padding: 0 8vw;
-  max-width: 54vw;
-  text-align: left;
-}
-.hero-split p { margin-left: 0; }
-.hero-split .cta-group { justify-content: flex-start; }
-
-/* ── SPLINE PHONE ────────────────────────────────────────────── */
-.phone-3d-wrap {
-  position: absolute;
-  right: 3vw;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 44vw;
-  max-width: 620px;
-  height: 88vh;
-  z-index: 5;
-  opacity: 0;
-  pointer-events: auto;
-  will-change: transform, opacity;
-}
-
-.phone-spline {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: transparent;
-  display: block;
-}
-
-.phone-glow {
-  position: absolute;
-  inset: -60px;
-  background:
-    radial-gradient(ellipse 60% 70% at 50% 50%,
-      rgba(26, 111, 255, 0.18) 0%,
-      rgba(0, 207, 168, 0.08) 45%,
-      transparent 72%);
-  pointer-events: none;
-  z-index: -1;
-  filter: blur(24px);
-  animation: phoneGlowPulse 4s ease-in-out infinite;
-}
-
-@keyframes phoneGlowPulse {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50%       { opacity: 1;   transform: scale(1.06); }
-}
-
 /* ── MOBILE ──────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .align-left, .align-right { padding: 80px 28px; }
@@ -332,6 +295,4 @@ p {
   .stats-row { gap: 36px; }
   #scroll-wrap { min-height: 500vh; }
   .site-footer { padding: 24px; flex-direction: column; gap: 12px; text-align: center; }
-  .hero-split { max-width: 100%; padding: 0 28px; }
-  .phone-3d-wrap { display: none; }
 }
