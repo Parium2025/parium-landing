@@ -22,6 +22,7 @@ Build a **premium 3D website** — immersive, scroll-driven, Three.js-powered.
 | **executive-assistant** | `/executive-assistant` | "set up my EA system", "second brain setup" |
 | **excalidraw-diagram** | `/excalidraw-diagram` | "draw a diagram", "make an Excalidraw" |
 | **skill-builder** | `/skill-builder` | "create a new skill", "optimize this skill" |
+| **spline-3d-integration** | `/spline-3d-integration` | "embed Spline scene", "add Spline", "3D scene from Spline" |
 
 ## MCP Servers
 
