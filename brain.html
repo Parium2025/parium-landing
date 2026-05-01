@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Particle AI Brain</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  .brain-wrap {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    /* Clip bottom slightly to remove watermark row */
+    overflow: hidden;
+  }
+
+  iframe.spline {
+    /* Extend below viewport to hide the watermark row */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    /* Taller than 100% so bottom (watermark) is clipped */
+    height: calc(100% + 52px);
+    border: none;
+    background: transparent;
+    display: block;
+  }
+
+  /* Hard cover over watermark as backup, bottom-right */
+  .wm-kill {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 180px;
+    height: 52px;
+    /* Match page background — set via JS based on parent */
+    background: transparent;
+    z-index: 9999;
+    pointer-events: none;
+  }
+
+  /* ── Responsive: scale iframe origin so brain never clips ─── */
+  @media (max-width: 768px) {
+    iframe.spline {
+      /* On tablet keep same approach */
+      height: calc(100% + 52px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .brain-wrap {
+      /* On small phones, let brain breathe vertically */
+      top: 0; bottom: 0; left: 0; right: 0;
+    }
+    iframe.spline {
+      height: calc(100% + 52px);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="brain-wrap">
+  <iframe
+    class="spline"
+    src="https://my.spline.design/particleaibrain-qOZru01HpsaDi218BLYF1WXA/"
+    frameborder="0"
+    allowtransparency="true"
+    allow="autoplay"
+    loading="eager"
+  ></iframe>
+</div>
+
+<!-- Watermark killer (backup layer) -->
+<div class="wm-kill"></div>
+
+<script>
+  // If embedded inside a dark page, mirror parent background onto wm-kill
+  // so it blends perfectly. Works standalone too.
+  (function() {
+    const bg = getComputedStyle(document.body).backgroundColor;
+    const killer = document.querySelector('.wm-kill');
+    if (killer) killer.style.background = (bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)')
+      ? '#0a0a0c'   // Parium default dark
+      : bg;
+  })();
+
+  // Handle resize: ensure iframe always fills viewport
+  function onResize() {
+    const wrap = document.querySelector('.brain-wrap');
+    if (wrap) {
+      wrap.style.height = window.innerHeight + 'px';
+    }
+  }
+  window.addEventListener('resize', onResize);
+  onResize();
+</script>
+
+</body>
+</html>
