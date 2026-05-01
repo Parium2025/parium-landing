@@ -23,6 +23,33 @@ Build a **premium 3D website** — immersive, scroll-driven, Three.js-powered.
 | **excalidraw-diagram** | `/excalidraw-diagram` | "draw a diagram", "make an Excalidraw" |
 | **skill-builder** | `/skill-builder` | "create a new skill", "optimize this skill" |
 | **spline-3d-integration** | `/spline-3d-integration` | "embed Spline scene", "add Spline", "3D scene from Spline" |
+| **banana** | `/banana` | "generate an image", "create a photo", "edit this picture", "design a logo" |
+
+## Marketing Skills (40 st — av Corey Haines)
+
+Börja alltid med `/product-marketing-context` — den sätter grunden för alla andra marketing skills.
+
+| Kategori | Skills |
+|----------|--------|
+| **SEO** | `/seo-audit`, `/ai-seo`, `/programmatic-seo`, `/schema-markup`, `/site-architecture` |
+| **CRO** | `/page-cro`, `/form-cro`, `/onboarding-cro`, `/signup-flow-cro`, `/paywall-upgrade-cro`, `/popup-cro`, `/ab-test-setup` |
+| **Innehåll & Copy** | `/copywriting`, `/copy-editing`, `/content-strategy`, `/social-content`, `/email-sequence`, `/cold-email` |
+| **Betald trafik** | `/paid-ads`, `/ad-creative` |
+| **Tillväxt** | `/launch-strategy`, `/referral-program`, `/lead-magnets`, `/free-tool-strategy`, `/marketing-ideas`, `/community-marketing` |
+| **Analys & Research** | `/customer-research`, `/competitor-profiling`, `/competitor-alternatives`, `/analytics-tracking` |
+| **Produkt & Revenue** | `/pricing-strategy`, `/churn-prevention`, `/revops`, `/sales-enablement`, `/product-marketing-context` |
+| **Övrigt** | `/aso-audit`, `/directory-submissions`, `/marketing-psychology`, `/image`, `/video` |
+
+## Awesome Claude Skills (27 st — av ComposioHQ)
+
+| Kategori | Skills |
+|----------|--------|
+| **Business & Marketing** | `/brand-guidelines`, `/competitive-ads-extractor`, `/domain-name-brainstormer`, `/internal-comms`, `/lead-research-assistant` |
+| **Innehåll & Kommunikation** | `/content-research-writer`, `/meeting-insights-analyzer` |
+| **Kreativ media** | `/canvas-design`, `/image-enhancer`, `/slack-gif-creator`, `/theme-factory`, `/video-downloader` |
+| **Utveckling** | `/artifacts-builder`, `/changelog-generator`, `/developer-growth-analysis`, `/mcp-builder`, `/skill-creator`, `/webapp-testing` |
+| **Produktivitet** | `/file-organizer`, `/invoice-organizer`, `/raffle-winner-picker`, `/tailored-resume-generator` |
+| **Dokument** | `/document-skills-docx`, `/document-skills-pdf`, `/document-skills-pptx`, `/document-skills-xlsx` |
 
 ## MCP Servers
 
