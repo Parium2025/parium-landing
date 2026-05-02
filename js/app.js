@@ -1,5 +1,47 @@
 'use strict';
 
+// ── CURSOR GLOW ───────────────────────────────────────────────
+const glowEl = document.getElementById('cursor-glow');
+let gmx = innerWidth / 2, gmy = innerHeight / 2;
+let ggx = gmx, ggy = gmy;
+document.addEventListener('mousemove', e => { gmx = e.clientX; gmy = e.clientY; });
+gsap.ticker.add(() => {
+  ggx += (gmx - ggx) * 0.08;
+  ggy += (gmy - ggy) * 0.08;
+  glowEl.style.left = ggx + 'px';
+  glowEl.style.top  = ggy + 'px';
+});
+
+// ── CARD SPOTLIGHT ────────────────────────────────────────────
+document.addEventListener('mousemove', e => {
+  document.querySelectorAll('.card').forEach(card => {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+});
+
+// ── TEXT SCRAMBLE ─────────────────────────────────────────────
+function scramble(el, text, ms) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789·×◆';
+  ms = ms || 1400;
+  let t0 = null;
+  function frame(ts) {
+    if (!t0) t0 = ts;
+    const p = Math.min((ts - t0) / ms, 1);
+    let out = '';
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] === ' ') { out += ' '; continue; }
+      out += p >= (i / text.length) * 0.75 + 0.1
+        ? text[i]
+        : chars[Math.floor(Math.random() * chars.length)];
+    }
+    el.textContent = out;
+    if (p < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
 // ── LOADER ────────────────────────────────────────────────────
 const loaderEl  = document.getElementById('loader');
 const loaderBar = document.getElementById('loader-bar');
@@ -76,7 +118,12 @@ function initScene() {
   );
   gsap.fromTo('#bottom-label',
     { opacity: 0, y: 6 },
-    { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', delay: 0.75 }
+    {
+      opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', delay: 0.75,
+      onStart() {
+        scramble(document.getElementById('bottom-label'), 'Rekrytering · På 60 sekunder', 1600);
+      }
+    }
   );
 
   // Cards spring entrance from sides
