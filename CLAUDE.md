@@ -24,6 +24,7 @@ Build a **premium 3D website** — immersive, scroll-driven, Three.js-powered.
 | **skill-builder** | `/skill-builder` | "create a new skill", "optimize this skill" |
 | **spline-3d-integration** | `/spline-3d-integration` | "embed Spline scene", "add Spline", "3D scene from Spline" |
 | **banana** | `/banana` | "generate an image", "create a photo", "edit this picture", "design a logo" |
+| **cinematic-site-components** | `/cinematic-site-components` | "cinematic effect", "cursor trail", "kinetic marquee", "mesh gradient", "split scroll", "text scramble", "zoom parallax", "sticky cards", "dynamic island" |
 
 ## Marketing Skills (40 st — av Corey Haines)
 
