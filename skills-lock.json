@@ -193,6 +193,12 @@
       "skillPath": "guides/design/data-visualization/SKILL.md",
       "computedHash": "ab8b148da2be0c32d68d5c968bc8f8cb7d71f1328cb1454b4675d5d9d57655e3"
     },
+    "design-taste-frontend": {
+      "source": "leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill/SKILL.md",
+      "computedHash": "9d1e82c5c409d2b0247245a005bc0f7e4447c0999b78dcea60f568c1ba4a6694"
+    },
     "dialogue-audio": {
       "source": "infsh-skills/skills",
       "sourceType": "github",
