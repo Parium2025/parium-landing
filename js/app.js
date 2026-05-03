@@ -111,19 +111,16 @@ function initScene() {
     }
   );
 
-  // Header + label
+  // Header
   gsap.fromTo('#site-header',
     { opacity: 0, y: -8 },
     { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', delay: 0.6 }
   );
-  gsap.fromTo('#bottom-label',
-    { opacity: 0, y: 6 },
-    {
-      opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', delay: 0.75,
-      onStart() {
-        scramble(document.getElementById('bottom-label'), 'Rekrytering · På 60 sekunder', 1600);
-      }
-    }
+
+  // CTAs — appear after phone settles
+  gsap.fromTo('#cta-section',
+    { opacity: 0, y: 20 },
+    { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out', delay: 1.6 }
   );
 
   // Cards spring entrance from sides
