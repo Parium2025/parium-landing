@@ -1,147 +1,955 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Parium</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parium – Swipe and Hire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── RESET ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       hsl(215 100% 12%);
+      --bg-deep:  hsl(215 100% 8%);
+      --bg-mid:   hsl(215 80% 15%);
+      --glow:     hsl(200 100% 35%);
+      --accent:   hsl(200 100% 60%);
+      --text:     #ffffff;
+      --muted:    rgba(255,255,255,0.52);
+      --dimmer:   rgba(255,255,255,0.22);
+      --border:   rgba(255,255,255,0.07);
+      --font:     'Manrope', system-ui, sans-serif;
+    }
+
+    html {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      scroll-behavior: smooth;
+    }
+    body { overflow-x: hidden; }
+
+    /* ─── LOADER ─────────────────────────────────────────────── */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg-deep);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 28px;
+    }
+    #loader img { width: 80px; opacity: 0.9; }
+    .loader-track {
+      width: 140px; height: 1px;
+      background: rgba(255,255,255,0.07); overflow: hidden;
+    }
+    #loader-bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--glow), var(--accent));
+      transition: width 0.08s linear;
+    }
+    #loader-pct {
+      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--dimmer); font-weight: 600;
+    }
+
+    /* ─── NAV ────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 22px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(to bottom, hsl(215 100% 8% / 0.9) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    nav img { height: 36px; pointer-events: all; }
+    .nav-right {
+      display: flex; align-items: center; gap: 32px;
+      pointer-events: all;
+    }
+    .nav-link {
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em;
+      color: var(--muted); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-cta {
+      font-size: 0.78rem; font-weight: 700;
+      padding: 9px 20px; border-radius: 100px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text); text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .nav-cta:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22); }
+
+    /* ─── SHARED ─────────────────────────────────────────────── */
+    .container { max-width: 1300px; margin: 0 auto; padding: 0 52px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: var(--font); font-weight: 700;
+      font-size: 0.84rem; letter-spacing: 0.02em;
+      padding: 15px 30px; border-radius: 100px;
+      text-decoration: none; cursor: pointer; border: none;
+      transition:
+        transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.28s ease,
+        background 0.22s ease;
+    }
+    .btn:active { transform: scale(0.97) !important; }
+    .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .btn-primary {
+      background: var(--glow);
+      color: #fff;
+      box-shadow:
+        0 8px 24px hsl(200 100% 35% / 0.32),
+        inset 0 1px 0 rgba(255,255,255,0.18);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px hsl(200 100% 35% / 0.48), inset 0 1px 0 rgba(255,255,255,0.18);
+    }
+    .btn-ghost {
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.78);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .btn-ghost:hover {
+      transform: translateY(-2px);
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(255,255,255,0.22);
+    }
+
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+    .label-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--accent);
+      animation: dotPulse 2.4s ease-in-out infinite;
+    }
+    @keyframes dotPulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.6); }
+    }
+
+    /* ─── HERO ───────────────────────────────────────────────── */
+    #hero {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      background:
+        radial-gradient(ellipse 70% 80% at 72% 44%,
+          hsl(200 100% 35% / 0.14) 0%, transparent 68%),
+        var(--bg);
+    }
+
+    .hero-left {
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 120px 0 80px 52px;
+      gap: 24px;
+      position: relative; z-index: 2;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent);
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block;
+      width: 22px; height: 1px; background: var(--accent);
+    }
+
+    .hero-h1 {
+      font-size: clamp(38px, 4.8vw, 66px);
+      font-weight: 900; line-height: 1.0; letter-spacing: -0.04em;
+    }
+    .hero-h1 .soft { color: var(--muted); font-weight: 300; }
+
+    .hero-sub {
+      font-size: 1rem; line-height: 1.72;
+      color: var(--muted); max-width: 460px; font-weight: 400;
+    }
+
+    .hero-cta-row {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .hero-proof {
+      display: flex; align-items: center; gap: 14px;
+      margin-top: 6px;
+    }
+    .proof-avatars { display: flex; }
+    .proof-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 2px solid var(--bg);
+      margin-left: -8px;
+    }
+    .proof-avatar:first-child { margin-left: 0; }
+    .proof-text {
+      font-size: 0.7rem; color: var(--muted); font-weight: 500;
+    }
+    .proof-text b { color: var(--accent); font-weight: 700; }
+
+    /* ─── HERO RIGHT (Spline + notif cards) ─────────────────── */
+    .hero-right {
+      position: relative;
+      min-height: 100dvh;
+      overflow: hidden;
+    }
+    .hero-right iframe {
+      position: absolute; inset: 0;
+      width: 115%; height: 115%;
+      top: -7.5%; left: -7.5%;
+      border: none;
+      pointer-events: none;
+    }
+
+    /* Notif cards */
+    .nc {
+      position: absolute; z-index: 15;
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 13px;
+      background: rgba(10, 16, 30, 0.84);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 0.5px solid rgba(255,255,255,0.08);
+      border-top-color: rgba(255,255,255,0.12);
+      border-radius: 16px;
+      min-width: 196px;
+      box-shadow:
+        0 0 0 0.5px rgba(0,0,0,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 14px 40px rgba(0,0,0,0.45);
+      opacity: 0;
+      will-change: transform;
+    }
+    .nc-icon {
+      width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nc-icon svg { width: 14px; height: 14px; }
+    .nc-body { flex: 1; min-width: 0; }
+    .nc-title {
+      font-size: 0.71rem; font-weight: 600;
+      color: rgba(255,255,255,0.86);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .nc-sub {
+      font-size: 0.62rem; font-weight: 500;
+      color: rgba(255,255,255,0.3); margin-top: 1px;
+    }
+    .nc-time {
+      font-size: 0.58rem; font-weight: 600;
+      color: rgba(255,255,255,0.2); flex-shrink: 0; align-self: flex-start;
+    }
+
+    .nc-1 { left: 4%;  top: 11%;  }
+    .nc-2 { left: 2%;  top: 41%;  }
+    .nc-3 { left: 3%;  bottom: 16%; }
+    .nc-4 { right: 3%; top: 17%;  }
+    .nc-5 { right: 2%; top: 44%;  }
+    .nc-6 { right: 3%; bottom: 20%; }
+
+    /* ─── MARQUEE ────────────────────────────────────────────── */
+    .marquee-wrap {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: hsl(215 100% 10%);
+      overflow: hidden;
+    }
+    .marquee-track {
+      display: flex; align-items: center; width: max-content;
+      padding: 16px 0;
+      animation: scrollLeft 24s linear infinite;
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+    .mi {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 36px;
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: rgba(255,255,255,0.2); white-space: nowrap;
+    }
+    .mi-sep {
+      width: 3px; height: 3px; border-radius: 50%;
+      background: var(--glow); opacity: 0.7; flex-shrink: 0;
+    }
+    @keyframes scrollLeft {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ─── FEATURE SECTIONS ───────────────────────────────────── */
+    .feat-section {
+      padding: 124px 0;
+    }
+    .feat-section:nth-of-type(even) {
+      background: hsl(215 100% 10%);
+    }
+
+    .feat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 88px; align-items: center;
+    }
+    .feat-grid.flip { direction: rtl; }
+    .feat-grid.flip > * { direction: ltr; }
+
+    .feat-text {}
+
+    .feat-h2 {
+      font-size: clamp(28px, 3.2vw, 46px);
+      font-weight: 800; letter-spacing: -0.035em; line-height: 1.08;
+      margin-bottom: 18px;
+    }
+    .feat-sub {
+      font-size: 0.94rem; line-height: 1.72;
+      color: var(--muted); max-width: 430px; margin-bottom: 32px;
+    }
+
+    .checklist {
+      list-style: none; display: flex; flex-direction: column;
+      gap: 12px; margin-bottom: 34px;
+    }
+    .checklist li {
+      display: flex; align-items: flex-start; gap: 11px;
+      font-size: 0.86rem; color: var(--muted); line-height: 1.5;
+    }
+    .chk {
+      width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+      background: hsl(200 100% 35% / 0.12);
+      border: 1px solid hsl(200 100% 35% / 0.28);
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .chk svg { width: 10px; height: 10px; }
+
+    /* ─── MOCK PANEL ─────────────────────────────────────────── */
+    .mock-panel {
+      border-radius: 22px;
+      background: linear-gradient(150deg, hsl(215 55% 16%), hsl(215 75% 10%));
+      border: 1px solid rgba(255,255,255,0.07);
+      border-top-color: rgba(255,255,255,0.11);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
+      aspect-ratio: 5/4;
+      padding: 28px;
+      display: flex; flex-direction: column; gap: 14px;
+      position: relative; overflow: hidden;
+    }
+
+    /* Mock topbar */
+    .mock-topbar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; flex-shrink: 0;
+    }
+    .mtb-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+    }
+    .mtb-bar {
+      height: 6px; border-radius: 3px;
+      background: rgba(255,255,255,0.06);
+    }
+    .mtb-bar.grow { flex: 1; }
+    .mtb-bar.sm { width: 56px; }
+
+    /* Mock rows */
+    .mock-row { display: flex; gap: 10px; flex: 1; }
+
+    .mock-card {
+      flex: 1; border-radius: 12px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.055);
+      padding: 14px 13px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .mock-card.wide { flex: 1.7; }
+
+    .mc-head { display: flex; align-items: center; gap: 8px; }
+    .mc-avatar {
+      width: 26px; height: 26px; border-radius: 7px;
+      background: var(--av-color, hsl(200 50% 32%));
+      flex-shrink: 0;
+    }
+    .mc-namebar {
+      height: 7px; flex: 1; border-radius: 3px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .mc-line {
+      height: 6px; border-radius: 3px;
+      background: rgba(255,255,255,0.055);
+    }
+    .mc-line.accent { background: hsl(200 100% 35% / 0.38); }
+    .mc-line.w100 { width: 100%; }
+    .mc-line.w80  { width: 80%; }
+    .mc-line.w60  { width: 60%; }
+    .mc-line.w45  { width: 45%; }
+
+    .mc-tag {
+      display: inline-block;
+      height: 17px; border-radius: 100px;
+      background: hsl(200 100% 35% / 0.18);
+      border: 1px solid hsl(200 100% 35% / 0.28);
+    }
+    .mc-tag.t1 { width: 44px; }
+    .mc-tag.t2 { width: 34px; }
+
+    /* Glow behind mock */
+    .mock-glow {
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle, hsl(200 100% 35% / 0.28), transparent 65%);
+      filter: blur(30px); pointer-events: none;
+    }
+
+    /* ─── STATS ──────────────────────────────────────────────── */
+    #stats {
+      padding: 100px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: hsl(215 100% 10%);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .stat {
+      padding: 44px 52px;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-num {
+      font-size: clamp(44px, 5.5vw, 68px);
+      font-weight: 900; letter-spacing: -0.04em; line-height: 1;
+      color: #fff; margin-bottom: 10px;
+    }
+    .stat-num sup { font-size: 0.45em; color: var(--accent); vertical-align: top; margin-top: 0.3em; }
+    .stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+
+    /* ─── FINAL CTA ──────────────────────────────────────────── */
+    #outro {
+      padding: 160px 0;
+      background:
+        radial-gradient(ellipse 55% 55% at 50% 50%, hsl(200 100% 35% / 0.11), transparent 68%),
+        var(--bg);
+      text-align: center;
+    }
+    #outro h2 {
+      font-size: clamp(32px, 4.2vw, 58px);
+      font-weight: 900; letter-spacing: -0.04em; line-height: 1.04;
+      margin-bottom: 18px;
+    }
+    #outro p {
+      font-size: 0.98rem; color: var(--muted); line-height: 1.72;
+      max-width: 460px; margin: 0 auto 40px;
+    }
+    #outro .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* ─── FOOTER ─────────────────────────────────────────────── */
+    footer {
+      padding: 28px 52px;
+      border-top: 1px solid var(--border);
+      background: hsl(215 100% 8%);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    footer img { height: 26px; opacity: 0.5; }
+    footer p { font-size: 0.65rem; color: var(--dimmer); letter-spacing: 0.06em; }
+
+    /* ─── SCROLL REVEAL ──────────────────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(28px); will-change: transform, opacity; }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      #hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-right { min-height: 60vw; }
+      .nc { display: none; }
+      .hero-left { padding: 96px 20px 40px; }
+      nav { padding: 16px 20px; }
+      .nav-right { display: none; }
+      .container { padding: 0 20px; }
+      .feat-grid { grid-template-columns: 1fr; gap: 44px; }
+      .feat-grid.flip { direction: ltr; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .stat { border-right: none; border-bottom: 1px solid var(--border); padding: 36px 20px; }
+      .stat:last-child { border-bottom: none; }
+      footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px 20px; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- CURSOR GLOW -->
-<div class="cursor-glow" id="cursor-glow"></div>
-
-<!-- LOADER -->
+<!-- ── LOADER ── -->
 <div id="loader">
-  <img src="logo.png" alt="Parium" class="loader-logo">
+  <img src="logo.png" alt="Parium">
   <div class="loader-track"><div id="loader-bar"></div></div>
   <span id="loader-pct">0%</span>
 </div>
 
-<!-- STAGE -->
-<main id="stage">
+<!-- ── NAV ── -->
+<nav>
+  <img src="logo.png" alt="Parium">
+  <div class="nav-right">
+    <a href="#jobbsokare" class="nav-link">För jobbsökare</a>
+    <a href="#arbetsgivare" class="nav-link">För arbetsgivare</a>
+    <a href="#" class="nav-cta">Logga in</a>
+  </div>
+</nav>
 
-  <!-- GRAIN -->
-  <svg class="grain" aria-hidden="true"><filter id="gf"><feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#gf)"/></svg>
+<!-- ══════════════════════════════════════ HERO -->
+<section id="hero">
 
-  <!-- AMBIENT GLOW -->
-  <div class="bg-glow" aria-hidden="true"></div>
+  <div class="hero-left">
+    <span class="hero-eyebrow" id="hEyebrow">Swipe and Hire</span>
 
-  <!-- SPINNING HALOS -->
-  <div class="halo halo-1" aria-hidden="true"></div>
-  <div class="halo halo-2" aria-hidden="true"></div>
+    <h1 class="hero-h1" id="hHeading">
+      Rätt person.<br>
+      <span class="soft">Rätt jobb.</span>
+    </h1>
 
-  <!-- SPINNING RINGS -->
-  <div class="spin-ring ring-a" aria-hidden="true"></div>
-  <div class="spin-ring ring-b" aria-hidden="true"></div>
+    <p class="hero-sub" id="hSub">
+      Parium matchar jobbsökare och arbetsgivare på sekunder — inte dagar.
+      Swipa, matcha, anställ.
+    </p>
 
-  <!-- PHONE STAGE (perspective + mouse listener) -->
-  <div id="phone-stage">
-    <!-- PHONE WRAP (entrance + mouse 3D parallax, preserve-3d) -->
-    <div id="phone-wrap">
-      <!-- FLOAT LAYER -->
-      <div id="phone-float">
+    <div class="hero-cta-row" id="hCtas">
+      <a href="#arbetsgivare" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+        </svg>
+        För arbetsgivare
+      </a>
+      <a href="#jobbsokare" class="btn btn-ghost">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        För jobbsökare
+      </a>
+    </div>
 
-        <!-- GLASS OVERLAY -->
-        <div class="phone-glass"></div>
+    <div class="hero-proof" id="hProof">
+      <div class="proof-avatars" id="proofAvatars"></div>
+      <p class="proof-text"><b>2 847</b> aktiva matchningar den här veckan</p>
+    </div>
+  </div>
 
-        <!-- REFLECTION SWEEP -->
-        <div class="phone-reflect"></div>
+  <div class="hero-right">
+    <iframe
+      src="https://my.spline.design/untitled-R9AE3iFR515l7EKvHCNavLb7/"
+      frameborder="0"
+      allowtransparency="true"
+      title="3D phone animation"
+    ></iframe>
 
-        <!-- IFRAME FRAME -->
-        <div class="phone-frame">
-          <iframe
-            src="https://my.spline.design/untitled-R9AE3iFR515l7EKvHCNavLb7/"
-            frameborder="0" allowfullscreen
-          ></iframe>
+    <!-- Notification cards — SVG icons, no emojis -->
+    <div class="nc nc-1" data-delay=".72" data-dir="left">
+      <div class="nc-icon" style="background:hsl(200 80% 48% / .14); border:.5px solid hsl(200 80% 65% / .22);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="hsl(200 100% 68%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <div class="nc-body">
+        <p class="nc-title">Ny matchning</p>
+        <p class="nc-sub">Spotify · UX Lead</p>
+      </div>
+      <span class="nc-time">nu</span>
+    </div>
+
+    <div class="nc nc-2" data-delay="1.02" data-dir="left">
+      <div class="nc-icon" style="background:hsl(145 70% 40% / .14); border:.5px solid hsl(145 70% 55% / .22);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="hsl(145 80% 65%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div class="nc-body">
+        <p class="nc-title">Intervju bokad</p>
+        <p class="nc-sub">IKEA · imorgon 10:00</p>
+      </div>
+      <span class="nc-time">5m</span>
+    </div>
+
+    <div class="nc nc-3" data-delay="1.3" data-dir="left">
+      <div class="nc-icon" style="background:hsl(270 70% 55% / .14); border:.5px solid hsl(270 70% 65% / .22);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="hsl(270 80% 75%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div class="nc-body">
+        <p class="nc-title">Din profil</p>
+        <p class="nc-sub">Sedd av 28 arbetsgivare</p>
+      </div>
+      <span class="nc-time">1h</span>
+    </div>
+
+    <div class="nc nc-4" data-delay=".9" data-dir="right">
+      <div class="nc-icon" style="background:hsl(35 100% 50% / .14); border:.5px solid hsl(35 100% 60% / .22);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="hsl(35 100% 68%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <div class="nc-body">
+        <p class="nc-title">Erbjudande</p>
+        <p class="nc-sub">65 400 kr / mån</p>
+      </div>
+      <span class="nc-time">nu</span>
+    </div>
+
+    <div class="nc nc-5" data-delay="1.18" data-dir="right">
+      <div class="nc-icon" style="background:hsl(340 70% 50% / .14); border:.5px solid hsl(340 70% 60% / .22);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="hsl(340 80% 72%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </div>
+      <div class="nc-body">
+        <p class="nc-title">Match 97%</p>
+        <p class="nc-sub">Google · Stockholm</p>
+      </div>
+      <span class="nc-time">12m</span>
+    </div>
+
+    <div class="nc nc-6" data-delay="1.46" data-dir="right">
+      <div class="nc-icon" style="background:hsl(45 100% 50% / .14); border:.5px solid hsl(45 100% 60% / .22);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="hsl(45 100% 68%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="7"/>
+          <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+        </svg>
+      </div>
+      <div class="nc-body">
+        <p class="nc-title">Kontrakt signerat</p>
+        <p class="nc-sub">Välkommen till teamet!</p>
+      </div>
+      <span class="nc-time">2h</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marqueeTrack"></div>
+</div>
+
+<!-- ══════════════════════════════════════ FOR JOB SEEKERS -->
+<section class="feat-section" id="jobbsokare">
+  <div class="container">
+    <div class="feat-grid">
+
+      <div class="feat-text reveal">
+        <div class="section-label">
+          <span class="label-dot"></span>
+          För jobbsökare
         </div>
+        <h2 class="feat-h2">Swipa dig till<br>drömjobbet.</h2>
+        <p class="feat-sub">Inga långa formulär. Inga kalla ansökningar. Skapa din profil på 3 minuter och börja matcha med arbetsgivare som faktiskt söker just din kompetens.</p>
+        <ul class="checklist">
+          <li>
+            <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            AI matchar dig med rätt arbetsgivare automatiskt
+          </li>
+          <li>
+            <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            Se lön, förmåner och teamkultur — innan du ansöker
+          </li>
+          <li>
+            <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            Boka intervju direkt utan mellanhänder
+          </li>
+          <li>
+            <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            Helt anonymt tills du väljer att matcha
+          </li>
+        </ul>
+        <a href="#" class="btn btn-primary" style="width:fit-content;">
+          Hitta mitt nästa jobb
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+      </div>
 
+      <div class="mock-panel reveal" style="--delay:.14s;">
+        <div class="mock-glow" style="width:220px;height:180px;bottom:-40px;left:50%;transform:translateX(-50%);"></div>
+        <div class="mock-topbar">
+          <div class="mtb-dot" style="background:hsl(200 100% 60% / .55);"></div>
+          <div class="mtb-bar grow"></div>
+          <div class="mtb-bar sm"></div>
+        </div>
+        <div class="mock-row">
+          <div class="mock-card wide">
+            <div class="mc-head">
+              <div class="mc-avatar" style="--av-color:hsl(200 50% 32%);"></div>
+              <div class="mc-namebar"></div>
+            </div>
+            <div class="mc-line w80"></div>
+            <div class="mc-line w45"></div>
+            <div style="display:flex;gap:5px;margin-top:3px;">
+              <div class="mc-tag t1"></div><div class="mc-tag t2"></div>
+            </div>
+          </div>
+          <div class="mock-card">
+            <div class="mc-line accent w60"></div>
+            <div class="mc-line w80"></div>
+            <div class="mc-line w45"></div>
+          </div>
+        </div>
+        <div class="mock-row">
+          <div class="mock-card">
+            <div class="mc-line accent w80"></div>
+            <div class="mc-line w60"></div>
+          </div>
+          <div class="mock-card">
+            <div class="mc-line w100"></div>
+            <div class="mc-line accent w45"></div>
+          </div>
+          <div class="mock-card">
+            <div class="mc-line w60"></div>
+            <div class="mc-line w80"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ FOR EMPLOYERS -->
+<section class="feat-section" id="arbetsgivare">
+  <div class="container">
+    <div class="feat-grid flip">
+
+      <div class="feat-text reveal">
+        <div class="section-label">
+          <span class="label-dot" style="animation-delay:.6s;"></span>
+          För arbetsgivare
+        </div>
+        <h2 class="feat-h2">Hitta kandidaterna<br>som faktiskt passar.</h2>
+        <p class="feat-sub">Publicera en tjänst på 30 sekunder. Parium filtrerar bort 95% av irrelevanta profiler och visar bara kandidater som matchar ditt team och era krav.</p>
+        <ul class="checklist">
+          <li>
+            <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            Lägg ut jobb utan rekryteringsbyrå
+          </li>
+          <li>
+            <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            AI-rankade kandidater baserade på kompetens och kulturmatch
+          </li>
+          <li>
+            <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            Inbyggt intervjuschema och kommunikation
+          </li>
+          <li>
+            <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            Betala bara per lyckad anställning
+          </li>
+        </ul>
+        <a href="#" class="btn btn-primary" style="width:fit-content;">
+          Posta din första tjänst
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="mock-panel reveal" style="--delay:.14s;">
+        <div class="mock-glow" style="width:200px;height:160px;top:-30px;right:15%;"></div>
+        <div class="mock-topbar">
+          <div class="mtb-dot" style="background:hsl(200 100% 60% / .55);"></div>
+          <div class="mtb-bar grow"></div>
+          <div class="mtb-bar sm"></div>
+        </div>
+        <div class="mock-row">
+          <div class="mock-card" style="flex:1.4;">
+            <div class="mc-head">
+              <div class="mc-avatar" style="--av-color:hsl(215 55% 38%);"></div>
+              <div class="mc-namebar"></div>
+              <div class="mc-tag t1" style="flex-shrink:0;"></div>
+            </div>
+            <div class="mc-line w65"></div>
+            <div class="mc-line accent w90"></div>
+          </div>
+          <div class="mock-card">
+            <div class="mc-line accent w80"></div>
+            <div class="mc-line w60"></div>
+            <div class="mc-line w45"></div>
+          </div>
+        </div>
+        <div class="mock-row">
+          <div class="mock-card">
+            <div class="mc-head">
+              <div class="mc-avatar" style="--av-color:hsl(30 55% 38%);"></div>
+              <div class="mc-namebar"></div>
+            </div>
+            <div class="mc-line w60"></div>
+          </div>
+          <div class="mock-card">
+            <div class="mc-head">
+              <div class="mc-avatar" style="--av-color:hsl(270 50% 38%);"></div>
+              <div class="mc-namebar"></div>
+            </div>
+            <div class="mc-line accent w70"></div>
+          </div>
+          <div class="mock-card">
+            <div class="mc-head">
+              <div class="mc-avatar" style="--av-color:hsl(145 50% 30%);"></div>
+              <div class="mc-namebar"></div>
+            </div>
+            <div class="mc-line w55"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ STATS -->
+<section id="stats">
+  <div class="container">
+    <div class="stats-grid reveal">
+      <div class="stat">
+        <div class="stat-num">14<sup>k+</sup></div>
+        <div class="stat-label">Aktiva jobbannonser</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">97<sup>%</sup></div>
+        <div class="stat-label">Matchningsnoggrannhet</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">3<sup>min</sup></div>
+        <div class="stat-label">Genomsnittlig matchningstid</div>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- NOTIFICATION CARDS (bubblor) -->
-  <div class="card c1" data-delay="0.7"  data-dir="left">
-    <div class="card-icon" style="--h:210">🎯</div>
-    <div class="card-body">
-      <p class="card-title">Ny matchning</p>
-      <p class="card-sub">Spotify · UX Lead</p>
+<!-- ══════════════════════════════════════ OUTRO CTA -->
+<section id="outro">
+  <div class="container">
+    <h2 class="reveal">Redo att förändra hur<br>rekrytering fungerar?</h2>
+    <p class="reveal">Gå med tusentals jobbsökare och arbetsgivare som redan matchar via Parium.</p>
+    <div class="btn-row reveal">
+      <a href="#arbetsgivare" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+        </svg>
+        För arbetsgivare
+      </a>
+      <a href="#jobbsokare" class="btn btn-ghost">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        För jobbsökare
+      </a>
     </div>
-    <span class="card-time">nu</span>
   </div>
+</section>
 
-  <div class="card c2" data-delay="1.05" data-dir="left">
-    <div class="card-icon" style="--h:145">📅</div>
-    <div class="card-body">
-      <p class="card-title">Intervju bokad</p>
-      <p class="card-sub">IKEA · imorgon kl 10</p>
-    </div>
-    <span class="card-time">5m</span>
-  </div>
+<!-- FOOTER -->
+<footer>
+  <img src="logo.png" alt="Parium">
+  <p>© 2026 Parium AB — Swipe and Hire</p>
+</footer>
 
-  <div class="card c3" data-delay="1.35" data-dir="left">
-    <div class="card-icon" style="--h:270">⭐</div>
-    <div class="card-body">
-      <p class="card-title">Din profil</p>
-      <p class="card-sub">Sedd av 28 arbetsgivare</p>
-    </div>
-    <span class="card-time">1h</span>
-  </div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+'use strict';
 
-  <div class="card c4" data-delay="0.9"  data-dir="right">
-    <div class="card-icon" style="--h:25">💼</div>
-    <div class="card-body">
-      <p class="card-title">Nytt erbjudande</p>
-      <p class="card-sub">65 000 kr / mån</p>
-    </div>
-    <span class="card-time">nu</span>
-  </div>
+/* ── LOADER ── */
+const loaderEl  = document.getElementById('loader');
+const loaderBar = document.getElementById('loader-bar');
+const loaderPct = document.getElementById('loader-pct');
+let prog = 0;
+const loadTick = setInterval(() => {
+  prog += Math.random() * 14 + 5;
+  if (prog >= 100) { prog = 100; clearInterval(loadTick); }
+  loaderBar.style.width = prog + '%';
+  loaderPct.textContent = Math.floor(prog) + '%';
+}, 80);
+setTimeout(() => {
+  gsap.to(loaderEl, {
+    opacity: 0, duration: 0.5,
+    onComplete() { loaderEl.remove(); initPage(); }
+  });
+}, 1500);
 
-  <div class="card c5" data-delay="1.2"  data-dir="right">
-    <div class="card-icon" style="--h:340">✦</div>
-    <div class="card-body">
-      <p class="card-title">Match 97 %</p>
-      <p class="card-sub">Google · Stockholm</p>
-    </div>
-    <span class="card-time">12m</span>
-  </div>
+/* ── PROOF AVATARS ── */
+const avColors = ['hsl(200 55% 32%)', 'hsl(145 45% 30%)', 'hsl(30 55% 34%)', 'hsl(270 45% 35%)'];
+const avContainer = document.getElementById('proofAvatars');
+avColors.forEach(c => {
+  const d = document.createElement('div');
+  d.className = 'proof-avatar';
+  d.style.background = c;
+  avContainer.appendChild(d);
+});
 
-  <div class="card c6" data-delay="1.5"  data-dir="right">
-    <div class="card-icon" style="--h:45">🎉</div>
-    <div class="card-body">
-      <p class="card-title">Erbjudande signerat</p>
-      <p class="card-sub">Välkommen till teamet!</p>
-    </div>
-    <span class="card-time">2h</span>
-  </div>
+/* ── MARQUEE ── */
+const brands = ['Spotify', 'IKEA', 'Klarna', 'Volvo', 'H&amp;M', 'King', 'Ericsson', 'Scania', 'Truecaller', 'Voi', 'Bambora'];
+const track = document.getElementById('marqueeTrack');
+[...brands, ...brands, ...brands].forEach(name => {
+  const el = document.createElement('div');
+  el.className = 'mi';
+  el.innerHTML = `<span class="mi-sep"></span>${name}`;
+  track.appendChild(el);
+});
 
-  <!-- HEADER -->
-  <header class="site-header" id="site-header">
-    <img src="logo.png" alt="Parium" class="site-logo">
-  </header>
+/* ── PAGE INIT ── */
+function initPage() {
+  gsap.registerPlugin(ScrollTrigger);
 
-  <!-- CTA SECTION -->
-  <div class="cta-section" id="cta-section">
-    <a href="#arbetsgivare" class="cta-btn cta-primary">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-      </svg>
-      För arbetsgivare
-    </a>
-    <a href="#jobbsokare" class="cta-btn cta-secondary">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-      För jobbsökare
-    </a>
-  </div>
+  /* Hero entrance — staggered from left */
+  const heroTl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+  heroTl
+    .fromTo('#hEyebrow', { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: .7 }, 0.05)
+    .fromTo('#hHeading',  { opacity: 0, y: 22  }, { opacity: 1, y: 0, duration: 1.0 }, 0.18)
+    .fromTo('#hSub',      { opacity: 0, y: 16  }, { opacity: 1, y: 0, duration: .8  }, 0.32)
+    .fromTo('#hCtas',     { opacity: 0, y: 14  }, { opacity: 1, y: 0, duration: .75 }, 0.46)
+    .fromTo('#hProof',    { opacity: 0          }, { opacity: 1,       duration: .6  }, 0.62);
 
-</main>
+  /* Notification cards spring in */
+  document.querySelectorAll('.nc').forEach(card => {
+    const delay   = parseFloat(card.dataset.delay ?? 0.8);
+    const isRight = card.dataset.dir === 'right';
+    gsap.fromTo(card,
+      { opacity: 0, x: isRight ? 30 : -30, scale: .9 },
+      { opacity: 1, x: 0, scale: 1, duration: 1.0, ease: 'back.out(1.4)', delay }
+    );
+    gsap.to(card, {
+      y: `random(-7, 7)`,
+      rotation: `random(-0.5, 0.5)`,
+      duration: `random(3.2, 5.0)`,
+      ease: 'sine.inOut', yoyo: true, repeat: -1,
+      delay: Math.random() * 1.5
+    });
+  });
 
-<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
-<script src="js/app.js"></script>
+  /* Scroll reveals */
+  gsap.utils.toArray('.reveal').forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 28 },
+      {
+        opacity: 1, y: 0, duration: .9, ease: 'power3.out',
+        scrollTrigger: {
+          trigger: el, start: 'top 86%',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+  });
+}
+</script>
 </body>
 </html>
